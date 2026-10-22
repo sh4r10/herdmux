@@ -69,7 +69,7 @@ s.Client                                        // a *tmux.Client on the server,
 
 - The server and every herdmux run get a scrubbed environment:
   - removed: `TMUX`, `TMUX_PANE`, `HERDR_*`, `HERDMUX*`
-  - set: `HOME` and the `XDG_*` dirs in a temp dir, `HERDMUX_CONFIG_DIR`, `SHELL=/bin/sh`
+  - set: `HOME` and the `XDG_*` dirs in a temp dir, `HERDMUX_CONFIG_DIR`, `SHELL=/bin/sh` (inherited `XDG_CONFIG_HOME`/`HERDMUX_CONFIG_DIR` never reach the server: `TestInheritedConfigEnvIsReplaced`)
   - the built herdmux binary's dir first on `PATH`, so hooks and bindings that call a bare `herdmux` work
 - In-pane runs also get `TMUX=<socket>,<pid>,0` and `TMUX_PANE`.
 - The binary is built once per test process (`tmuxtest.Binary(t)`) into `$TMPDIR/herdmux-tmuxtest-<uid>-<checkout hash>/herdmux`.
@@ -119,14 +119,14 @@ Rules:
 
 ## Config dir (`internal/config`)
 
-- `config.Dir(getenv)` is `$HERDMUX_CONFIG_DIR`, else `~/.config/herdmux` (an error when neither it nor `HOME` is set). Every config path goes under it: `config.toml`, `colorscheme`, `colors/`. Pass the verb's `e.getenv`.
+- `config.Dir(getenv)` is `$HERDMUX_CONFIG_DIR`, else `config.XDGConfigHome(getenv)/herdmux`: `$XDG_CONFIG_HOME` if absolute (a relative one is ignored, per the XDG spec), else `~/.config` (an error when none of them is usable). install's tmux.conf and opencode paths use the same `XDGConfigHome`. Every config path goes under it: `config.toml`, `colorscheme`, `colors/`. Pass the verb's `e.getenv`.
 
 ## config.toml and [keys] (`internal/config`)
 
 - `config.Load(getenv) (Config, error)` reads `config.toml` (`config.Path`); a missing file is `config.Defaults()` with no error. `config.Parse(text)` is the validator (MCP `write_config`: reject on any error). `config.Write(getenv, text)` parses, then saves atomically only if there is no problem. **Both always return a usable `Config`**, even with an error; the error is a `*config.Error` whose text starts `config.toml: ` (show it as is, in red).
 - `Config.Agents` is the menu in file order with every `Key` set (auto-picked from the name when omitted; `q` is reserved). `cfg.Visible(e.getenv("PATH"))` is what a prompt shows (first word of `command`, after `VAR=x` words, on PATH). `cfg.Agent(name)`.
 - Fallbacks: bad TOML or a wrong type → all defaults; a broken `[[agent]]` (missing/bad name or command, bad key) → default agents; a duplicate agent key or name → the later entry is dropped; a bad `[keys]` entry (unknown action, bad key name, two actions on one key) → default keys; unknown keys elsewhere → reported only. A file with only `[keys]` keeps the default agents.
-- `Config.Sessionizer` is `[sessionizer]`: `roots` (directories to list; none → `DefaultSessionizer()`, sessions only) and `depth` (levels below each root, default 3; a negative depth keeps the default).
+- `Config.Sessionizer` is `[sessionizer]`: `roots` (directories to list; none → `DefaultSessionizer()`, sessions only) and `depth` (levels below each root, default 3; a negative depth keeps the default). A root that is not `filepath.IsAbs` (`~` included) is dropped with the problem `[sessionizer] roots: "<root>" is not an absolute path (~ is not expanded)`; the valid roots are kept.
 - `Config.Keys` maps every `config.Actions` entry (`picker`, `next-attention`, `organiser`, `launch`, `sessionizer`, `colorscheme`; defaults `prefix a`, `prefix u`, `prefix r`, `prefix o`, `prefix g`, unbound) to a canonical spec: `"prefix a"`, `"M-a"` (root) or `""`. `config.ParseSpec` validates tmux key names.
 - `config.Bind(c, cfg.Keys)` applies them, idempotently: init's step (`initKeys`, after the status bar so the error is drawn in the scheme's red) and MCP's live rebind after a write. Each binding is `bind-key -N "herdmux: …" -T <table> <key> run-shell -b "herdmux <action> --client '#{client_name}'"` (`config.BindingCommand`). A moved or unbound key gets back what was bound there before herdmux (tmux's default or tmux.conf's binding, note included), from the runtime bookkeeping options `@herdmux_key_<action>` / `@herdmux_key_<action>_restore` (not configuration).
 - **Every verb a key runs takes `--client`** (`clientFlag` in `cmd/herdmux/launch_verbs.go`): picker, organiser, next-attention, launch, sessionizer and `colorscheme` declare it. Errors from such runs go through `showOnClient` (red message + log, exit 1 with no stderr, via the `shownError` exit path in `cli.go`).
@@ -164,7 +164,12 @@ The picker is the template for the organiser (09) and the colorscheme picker (10
 
 - `sessionizer.List(c, roots, depth)`: every tmux session (`Entry{Type: "session", Name, Path: #{session_path}, Session: #{session_id}, Agents: <agent panes>}`), then each directory under `roots` to `depth` (`Type: "dir"`, `Path` the directory), each group by name.
 - `sessionizer.SwitchTo(c, client, entry)`: a session entry switches to its id; a dir entry switches to `=SessionName(path)`, creating it with `NewSession` when `HasSession` (`has-session -t =name`, exact) says it's missing. Always target sessions with `=` so `foo` never matches `foobar`.
-- The popup (`herdmux sessionizer`, `prefix g`) only picks; the verb calls `SwitchTo` after it closes, with the client name.
+- The popup (`herdmux sessionizer`, `prefix g`) only picks; the verb calls `SwitchTo` after it closes, with the client name. It loads `config.toml` on every open and passes the error as `Options.ConfigErr`, drawn in red above the footer (`Above`), as the picker and launch prompt do.
+
+## Manual (`internal/manpage`)
+
+- `internal/manpage/herdmux.1` is herdmux(1) in man(7) roff (not mdoc), embedded; `manpage.Page()` returns it unchanged. It describes the tool only, with no release metadata: `.TH HERDMUX 1 "" "herdmux" "User Commands"` (no version, no date) and no version or history notes in the prose; `TestPageHasNoReleaseMetadata` and `TestManHasNoReleaseMetadata` fail on a `YYYY-MM-DD` date or the `version` const. `herdmux man` pipes it to `man -l -` when stdout is a terminal and `man` is on `PATH`, else prints the roff.
+- Update the page with any verb, flag, `config.toml` or key change. `TestManDocumentsEveryVerb` fails if a verb in the table has no `.TP` / `.B herdmux <verb>` entry under COMMANDS; `TestPageLints` runs `groff -man -ww -z -rCHECKSTYLE=3` (skipped without groff; its only allowed diagnostic is the `.TH missing third argument` note about the empty date), so blank lines inside `.EX` are `\&`.
 
 ## Launch (`internal/launch`, `internal/ui/launchprompt`)
 
@@ -211,7 +216,7 @@ The picker is the template for the organiser (09) and the colorscheme picker (10
 ## Dev harness (`make dev`)
 
 - `make dev` runs `dev/run.sh`: builds `.dev/bin/herdmux`, kills and restarts `tmux -L herdmux-dev` with `-f dev/tmux.conf` (sources `~/.config/tmux/tmux.conf` read-only, then `run-shell 'herdmux init'`), and opens a Windows Terminal (`wt.exe`) tab attached to session `herdmux` (WSL only). `NO_WT=1 make dev` starts the server headless and prints the attach command; use it anywhere else.
-- The server environment: `.dev/bin` then `dev/shims` first on `PATH`, `HERDMUX_CONFIG_DIR=.dev/config` (gitignored `/.dev/`), and no `TMUX`, `TMUX_PANE`, `HERDR_*` or `HERDMUX*`. Panes get `HERDMUX=1` from init.
+- The server environment: `.dev/bin` then `dev/shims` first on `PATH`, `HERDMUX_CONFIG_DIR=.dev/config` (gitignored `/.dev/`; it must stay set, since it is what keeps an inherited `XDG_CONFIG_HOME` from pointing herdmux at the real config), and no `TMUX`, `TMUX_PANE`, `HERDR_*` or `HERDMUX*`. Panes get `HERDMUX=1` from init.
 - Shims: executable `claude`/`opencode`/`pi` wrappers live in `dev/shims/` (committed). Each must find the real binary further down `PATH` (skip `dev/shims` itself) and `exec` it with the per-launch flags.
 - Panes run `bash --rcfile dev/bashrc` (`default-command`, set by `dev/run.sh` before the first session). It sources `~/.profile` (which usually sources `~/.bashrc`), then puts `.dev/bin` and `dev/shims` back in front of `PATH`: startup files commonly prepend dirs such as `~/.local/bin` or `~/.opencode/bin` that hold the real `claude`, `pi` and `opencode`, which would shadow the shims (typed `opencode`/`claude` would run the real binary). Sourcing `~/.profile` matches what tmux's default login shell would read, so the developer's prompt and aliases still load. Panes started with an explicit command (`new-window 'opencode'`) don't run that rc; their `PATH` is the server's, which already has the dev dirs first. Check with `type -a claude pi opencode` in a dev pane.
 - Driving it from a script: create windows from inside the server (`tmux -L herdmux-dev run-shell 'tmux new-window -d -n x'`). A `new-window` sent by an outside, unattached command client gives the pane *that client's* `PATH`, which lacks `.dev/bin`. For an attached client, `script -qfec "stty cols 200 rows 50; TERM=xterm-256color exec tmux -L herdmux-dev attach -t =herdmux" /dev/null` with stdin from `sleep N |` works.
@@ -251,7 +256,7 @@ The picker is the template for the organiser (09) and the colorscheme picker (10
 ## install / uninstall (`internal/install`)
 
 - `install.Install(Options)` / `install.Uninstall(Options)`; `cmd/herdmux/install_verbs.go` is the thin verb. `Options{Getenv, Out, MCP, DryRun, Purge, Tmux}`. `Tmux` returns the server whose global PATH the preflight checks (the CLI: `FromEnv` inside tmux, else `tmux.Default()`); a "no server running" / "error connecting" error means nothing to check. Uninstall never connects to tmux.
-- **Paths** come only from the passed-in env (`install.Resolve(getenv)`): `$XDG_CONFIG_HOME` (if absolute, else `~/.config`) for `tmux/tmux.conf` and `opencode/…`, `$HOME` for `.claude/settings.json`, `.claude.json` (read only), `.pi/agent/extensions/…` and `.pi/agent/mcp.json` (read only), and `config.Dir` for `--purge`.
+- **Paths** come only from the passed-in env (`install.Resolve(getenv)`): `config.XDGConfigHome` (`$XDG_CONFIG_HOME` if absolute, else `~/.config`) for `tmux/tmux.conf` and `opencode/…`, `$HOME` for `.claude/settings.json`, `.claude.json` (read only), `.pi/agent/extensions/…` and `.pi/agent/mcp.json` (read only), and `config.Dir` for `--purge`.
 - **Test guard**: inside a test binary, `Resolve`, every write/remove and every agent-CLI exec refuse any path under the real `$HOME` (not under `os.TempDir()`), and only executables under the temp dir run. Tests use a temp HOME, fake `herdmux`/`claude`/`pi` scripts on a temp PATH, and a `tmuxtest` server or a dead `herdmux-test-*` socket for `Tmux` (`internal/install/install_test.go`).
 - Child processes (`sh -c 'command -v herdmux'`, `claude`/`pi mcp …`) get the process env with `HOME`, `PATH`, `XDG_*`, `CLAUDE_CONFIG_DIR`, `PI_CODING_AGENT_DIR`, `HERDMUX_CONFIG_DIR`, `TMUX*` replaced from `getenv`.
 - **JSON**: `ojson.go` is an order-preserving tree (`*object` member lists, `json.Number` literals) re-encoded in `JSON.stringify(v, null, indent)` style with the file's own indent unit and final newline, so a file in that style round-trips byte for byte. An edit that changes nothing writes nothing.

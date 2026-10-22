@@ -24,7 +24,7 @@ type Paths struct {
 	OpencodeJSON   string // $XDG_CONFIG_HOME/opencode/opencode.json (--mcp)
 	PiExtension    string // ~/.pi/agent/extensions/herdmux-agent-state.ts
 	PiMCP          string // ~/.pi/agent/mcp.json: read only, written by `pi mcp add`
-	ConfigDir      string // herdmux's own config dir (only uninstall --purge touches it)
+	ConfigDir      string // herdmux's own config dir, config.Dir (only uninstall --purge touches it)
 }
 
 // Resolve returns the paths for the environment getenv describes.
@@ -34,9 +34,9 @@ func Resolve(getenv func(string) string) (Paths, error) {
 		return Paths{}, errors.New("HOME is not set to an absolute path")
 	}
 	home = filepath.Clean(home)
-	xdg := getenv("XDG_CONFIG_HOME")
-	if !filepath.IsAbs(xdg) {
-		xdg = filepath.Join(home, ".config")
+	xdg, err := config.XDGConfigHome(getenv)
+	if err != nil {
+		return Paths{}, err
 	}
 	cfg, err := config.Dir(getenv)
 	if err != nil {

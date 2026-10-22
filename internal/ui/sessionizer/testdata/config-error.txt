@@ -1,0 +1,14 @@
+╭─ sessions ───────────────────────────────────────────────────────────────────╮
+│ 2 sessions, 2 dirs                                                           │
+│                                                                              │
+│ ▌● api  2 agents                   │                                         │
+│  ● main                            │                                         │
+│  ○ 12.34-herdmux                   │                                         │
+│  ○ web                             │                                         │
+│                                    │                                         │
+│                                    │                                         │
+│                                    │                                         │
+│ config.toml: [sessionizer] roots: "projects" is not an absolute path (~ is   │
+│ not expanded)                                                                │
+│ j/k move · ⏎ switch/launch · / filter · q close                              │
+╰──────────────────────────────────────────────────────────────────────────────╯

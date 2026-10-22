@@ -39,7 +39,7 @@ herdmux is a single Go binary. It never stays running: tmux key bindings, tmux h
 
 - One colorscheme styles all of tmux: pane backgrounds, status bar, tabs, borders, popups, menus and messages.
 - 25 bundled schemes: catppuccin, flexoki, gruvbox, kanagawa, onedark, rose-pine and tokyonight variants. The default is `flexoki-dark`.
-- Add your own, or override a bundled one, as TOML files in `~/.config/herdmux/colors/`. Invalid schemes are listed with the reason and can't be selected.
+- Add your own, or override a bundled one, as TOML files in `colors/` in the config dir (`~/.config/herdmux/colors/`). Invalid schemes are listed with the reason and can't be selected.
 
 **MCP server** (optional)
 
@@ -60,6 +60,7 @@ herdmux mcp                  serve the MCP server over stdio
 herdmux report <working|needs-input|done|exit> --agent <name> [--pid N] [--pane %N]
 herdmux install [--mcp] [--dry-run]
 herdmux uninstall [--purge]
+herdmux man                  show the full manual (herdmux(1))
 herdmux help [--all | command]
 ```
 
@@ -112,7 +113,7 @@ A key that herdmux moves or unbinds gets its previous binding back.
 
 ## Configuration
 
-Config lives in `~/.config/herdmux/` (or `$HERDMUX_CONFIG_DIR`):
+Config lives in `$HERDMUX_CONFIG_DIR` if set, else `$XDG_CONFIG_HOME/herdmux/` if `XDG_CONFIG_HOME` is an absolute path, else `~/.config/herdmux/`:
 
 | File | What |
 |---|---|
@@ -145,11 +146,11 @@ sessionizer = "prefix g"
 colorscheme = ""
 
 [sessionizer]
-roots = ["/home/you/projects"]   # absolute paths; none means sessions only
+roots = ["/home/you/projects"]   # absolute paths (~ is not expanded); none means sessions only
 depth = 3                        # directory levels below each root
 ```
 
-The launch menu shows only agents whose command is on `PATH`. A broken file falls back to the defaults for the broken part, and the error is shown in red in the popups.
+The launch menu shows only agents whose command is on `PATH`. A broken file falls back to the defaults for the broken part (a root that isn't an absolute path is left out), and the error is shown in red in the popups.
 
 ## Development
 

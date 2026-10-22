@@ -25,9 +25,10 @@ type Backend interface {
 
 // Options configure New.
 type Options struct {
-	Backend Backend
-	Styles  *style.Styles
-	Now     func() time.Time // nil: time.Now
+	Backend   Backend
+	Styles    *style.Styles
+	Now       func() time.Time // nil: time.Now
+	ConfigErr error            // the config.toml error, if any (shown in red)
 }
 
 // Result is what the user chose.
@@ -47,6 +48,7 @@ type Model struct {
 	msg     string
 	msgErr  bool
 	loadErr error
+	cfgErr  error
 	w, h    int
 	result  Result
 	quit    bool
@@ -54,7 +56,7 @@ type Model struct {
 
 // New loads the entries and returns the model.
 func New(o Options) Model {
-	m := Model{b: o.Backend, st: o.Styles, now: o.Now}
+	m := Model{b: o.Backend, st: o.Styles, now: o.Now, cfgErr: o.ConfigErr}
 	if m.now == nil {
 		m.now = time.Now
 	}
@@ -160,7 +162,7 @@ func (m Model) View() string {
 	}
 	inner := split.Inner(m.w)
 	lw, _ := split.Columns(inner)
-	above := m.above()
+	above := m.above(inner)
 	bh := split.BodyHeight(m.h, len(above))
 	return split.Layout{
 		Title:  "sessions",
@@ -241,8 +243,17 @@ func (m Model) dirCount() int {
 	return count
 }
 
-func (m Model) above() []string {
-	return nil // no config errors or prompts
+// above is the config.toml error in red, wrapped to w cells (none if the
+// file is fine).
+func (m Model) above(w int) []string {
+	if m.cfgErr == nil {
+		return nil
+	}
+	var out []string
+	for _, l := range style.Wrap(m.cfgErr.Error(), w) {
+		out = append(out, m.st.Error().Render(l))
+	}
+	return out
 }
 
 const hints = "j/k move · ⏎ switch/launch · / filter · q close"

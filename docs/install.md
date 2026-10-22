@@ -72,7 +72,7 @@ Or restart the server. Agents that are already running don't have `HERDMUX=1`, s
 
 ## 5. Keys and the sessionizer
 
-After the reload, herdmux binds its keys: `prefix a` agent picker, `prefix u` next agent that needs attention, `prefix r` window organiser, `prefix o` launch an agent, and `prefix g` the sessionizer (session switcher / project launcher). The colorscheme picker has no default key; give it one in `[keys]` (e.g. `colorscheme = "prefix C"`). Change any of them in `[keys]` in `~/.config/herdmux/config.toml`, e.g. `sessionizer = "prefix f"` or `""` to unbind.
+After the reload, herdmux binds its keys: `prefix a` agent picker, `prefix u` next agent that needs attention, `prefix r` window organiser, `prefix o` launch an agent, and `prefix g` the sessionizer (session switcher / project launcher). The colorscheme picker has no default key; give it one in `[keys]` (e.g. `colorscheme = "prefix C"`). Change any of them in `[keys]` in `~/.config/herdmux/config.toml` (`$XDG_CONFIG_HOME/herdmux/config.toml` if you set `XDG_CONFIG_HOME`, or `$HERDMUX_CONFIG_DIR/config.toml`), e.g. `sessionizer = "prefix f"` or `""` to unbind.
 
 The sessionizer lists every open session, then the directories under `[sessionizer]` roots. With no roots it lists only sessions:
 
@@ -82,12 +82,14 @@ roots = ["/home/you/projects"]   # absolute paths; ~ is not expanded
 depth = 3                        # levels below each root (default 3)
 ```
 
-⏎ on a session switches to it; ⏎ on a directory switches to the session named after it (leading digits, dots and dashes dropped, then any other `.` or `:` turned into `_` as tmux does: `12.34-herdmux` → `herdmux`, `12.35-my.proj` → `my_proj`), creating it there first if needed.
+A root that isn't an absolute path (`"projects"`, `"~/projects"`) is left out, and the sessionizer shows it in red: `config.toml: [sessionizer] roots: "projects" is not an absolute path (~ is not expanded)`. The other roots are still listed.
+
+⏎ on a session switches to it; ⏎ on a directory switches to the session named after it (everything before its first letter dropped, then each `.` or `:` turned into `_` as tmux does: `12.34-herdmux` → `herdmux`, `12.35-my.proj` → `my_proj`), creating it there first if needed.
 
 ## Undo
 
 ```bash
-herdmux uninstall            # add --purge to remove ~/.config/herdmux too
+herdmux uninstall            # add --purge to remove the config dir too
 ```
 
 uninstall removes exactly what install added:
@@ -98,4 +100,4 @@ uninstall removes exactly what install added:
 - the opencode `mcp.herdmux` entry
 - `claude mcp remove -s user herdmux` and `pi mcp remove herdmux`, if those servers are registered
 
-It keeps `~/.config/herdmux` (config.toml, the saved colorscheme, your schemes) unless you pass `--purge`, and it leaves the `.herdmux.bak` backups in place. A running server keeps `HERDMUX=1` and the layer (its keys, hooks and styles) until you restart it with `tmux kill-server`: a reload (`tmux source-file`) doesn't unset anything `herdmux init` set, and there is no live teardown verb. Undoing step 2 is up to you.
+It keeps the config dir, `~/.config/herdmux` or `$XDG_CONFIG_HOME/herdmux` (config.toml, the saved colorscheme, your schemes) unless you pass `--purge`, and it leaves the `.herdmux.bak` backups in place. A running server keeps `HERDMUX=1` and the layer (its keys, hooks and styles) until you restart it with `tmux kill-server`: a reload (`tmux source-file`) doesn't unset anything `herdmux init` set, and there is no live teardown verb. Undoing step 2 is up to you.

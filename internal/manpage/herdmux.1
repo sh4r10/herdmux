@@ -1,0 +1,882 @@
+.\" herdmux(1): the full manual, embedded in the binary (herdmux man).
+.TH HERDMUX 1 "" "herdmux" "User Commands"
+.SH NAME
+herdmux \- an AI\-agent awareness layer for tmux
+.SH SYNOPSIS
+.SY herdmux
+.I command
+.RI [ arguments ]
+.YS
+.SY herdmux
+.B \-\-help
+|
+.B \-\-version
+.YS
+.SH DESCRIPTION
+.B herdmux
+runs on top of an existing
+.BR tmux (1)
+setup and shows what every coding agent (claude, opencode or pi) in every
+tmux session is doing: working, waiting for the user, or finished.
+It flags the agents that need the user and gets the user to them in a keypress.
+.PP
+herdmux is a single binary that never stays running.
+tmux key bindings, tmux hooks and the agents' own hooks call it, and it keeps
+all of its state in tmux pane options.
+.PP
+It is turned on by
+.B herdmux init
+run from
+.IR tmux.conf ,
+which
+.B herdmux install
+adds.
+init applies the saved colorscheme, sets the status bar formats, binds the
+keys from
+.IR config.toml ,
+sets
+.B HERDMUX=1
+in the tmux global environment, and installs its tmux hooks.
+The agent integrations do nothing unless
+.B HERDMUX=1
+is set, so agents run outside herdmux's tmux are unaffected.
+.PP
+Popups (agent picker, window organiser, launch prompt, sessionizer and
+colorscheme picker) are drawn in the active colorscheme.
+The status bar shows one coloured state icon per agent in each window tab,
+fills the tab of an agent with Attention, and shows the session name, the
+active pane's directory, its git branch and a dirty marker.
+.SH COMMANDS
+Flags may appear anywhere among the arguments, and
+.B \-\-
+ends flag parsing.
+Every command accepts
+.BR \-\-help .
+Commands marked
+.I (tmux)
+must run inside tmux; outside it they exit 2 with
+.RB \(lq "herdmux: not inside tmux" \(rq.
+.TP
+.B herdmux init
+.I (tmux)
+Turn the layer on.
+Run it from
+.IR tmux.conf :
+.BR "run\-shell \(aqherdmux init\(aq" .
+It is idempotent.
+A broken
+.I config.toml
+or an unknown or invalid saved colorscheme is shown as a red message and
+logged; init carries on with the defaults.
+.TP
+.B herdmux picker \fR[\fB\-\-client\fR \fIname\fR]
+.I (tmux)
+Open the agent picker popup: every agent with its session, window, state and
+age, and a live preview of the selected pane.
+See
+.B KEY BINDINGS
+for its keys.
+.TP
+.B herdmux organiser \fR[\fB\-\-client\fR \fIname\fR]
+.I (tmux)
+Open the window organiser popup for the client's session: reorder, rename,
+kill and jump to windows, with a live preview.
+.TP
+.B herdmux next\-attention \fR[\fB\-\-client\fR \fIname\fR]
+.I (tmux)
+Jump to the next agent with Attention, across sessions:
+.B needs\-input
+before
+.BR done ,
+oldest first.
+With none, a short message is shown and the client stays where it is.
+.TP
+.B herdmux launch \fR[\fIagent\fR] [\fB\-\-client\fR \fIname\fR]
+.I (tmux)
+With an
+.IR agent ,
+the
+.B name
+of an
+.B [[agent]]
+entry in
+.IR config.toml ,
+open a new window named after it in the current pane's directory, type its
+.B command
+into the window's shell (which stays after the agent exits) and switch to it.
+With no argument, open the launch prompt popup: the menu of agents whose
+command is on
+.BR PATH ;
+press an agent's key to launch it, or q or Esc to close.
+.TP
+.B herdmux sessionizer \fR[\fB\-\-client\fR \fIname\fR]
+.I (tmux)
+Open the sessionizer popup: a session switcher and project launcher.
+See
+.BR SESSIONIZER .
+.TP
+.B herdmux colorscheme \fR[\fIname\fR | \fB\-\-list\fR] [\fB\-\-client\fR \fIname\fR]
+With no argument
+.IR (tmux) ,
+open the colorscheme picker popup, which previews each scheme live on the
+whole tmux UI; Enter saves the highlighted scheme, Esc or q reverts.
+With a
+.I name
+.IR (tmux) ,
+apply that scheme and save it as the choice; an unknown or invalid scheme is
+refused and nothing is saved.
+With
+.BR \-\-list ,
+which works anywhere, print every scheme: a
+.B *
+on the saved choice, name, family, tone (dark or light), source (bundled,
+user or override), and notes
+.RB ( active
+inside tmux, or
+.BI "invalid: " reason\fR),
+then the saved choice and the file it is saved in.
+.TP
+.B herdmux list \fR[\fB\-\-json\fR]
+.I (tmux)
+List every agent in tmux order, with columns SESSION, WINDOW, AGENT, STATE,
+ATTENTION and PANE, or
+.B no agents
+when there are none.
+With
+.BR \-\-json ,
+print a JSON array of objects with the fields
+.BR session ,
+.BR window_index ,
+.BR window_name ,
+.BR window ,
+.BR pane ,
+.BR agent ,
+.BR state ,
+.BR attention ,
+.B since
+(epoch seconds of the last state change) and
+.BR pid .
+.TP
+.B herdmux mcp
+Serve the herdmux MCP server over stdio, so an agent can read and change
+herdmux's setup.
+It refuses to start (exit 1) unless
+.B HERDMUX=1
+is set.
+Tools:
+.BR read_config ,
+.BR write_config ,
+.BR list_colorschemes ,
+.BR get_colorscheme ,
+.BR set_colorscheme ,
+.BR write_colorscheme ,
+.B delete_colorscheme
+and
+.BR list_agents .
+Config and colorscheme writes are validated before they are saved, and key
+changes apply live.
+.B set_colorscheme
+and
+.B list_agents
+need to run inside tmux; the file tools work anywhere.
+.TP
+.B herdmux report \fIstate\fB \-\-agent \fIname\fR [\fB\-\-pid \fIN\fR] [\fB\-\-pane %\fIN\fR]
+.I (tmux)
+Report an agent's state for a pane; this is the integration point any agent
+can call.
+.I state
+is
+.BR working ,
+.BR needs\-input ,
+.B done
+or
+.B exit
+(the agent left the pane).
+.B \-\-agent
+is required and is
+.BR claude ,
+.B opencode
+or
+.BR pi .
+.B \-\-pid
+is the agent's pid (default: report's parent pid);
+.B \-\-pane
+is the pane id (default:
+.BR $TMUX_PANE ).
+It always exits 0; errors go to the log.
+.TP
+.B herdmux install \fR[\fB\-\-mcp\fR] [\fB\-\-dry\-run\fR]
+Append a marked
+.B run\-shell \(aqherdmux init\(aq
+block to
+.I tmux.conf
+and install the claude hooks, the opencode plugin and the pi extension (see
+.BR FILES ).
+Before writing anything it checks that
+.B herdmux
+is on
+.BR sh 's
+PATH (and on the running tmux server's global PATH, if there is one), that
+every JSON file it edits parses, and that every target directory is writable;
+if any check fails it lists every problem and writes nothing.
+Each existing file is backed up to
+.IB file .herdmux.bak
+before its first edit.
+It is idempotent, and never touches the running tmux server; reload with
+.BR "tmux source\-file ~/.config/tmux/tmux.conf" .
+.RS
+.TP
+.B \-\-dry\-run
+Print a diff of every change and write nothing.
+.TP
+.B \-\-mcp
+Also register
+.B herdmux mcp
+with each agent (claude and pi must be on PATH).
+.RE
+.TP
+.B herdmux uninstall \fR[\fB\-\-purge\fR]
+Remove exactly what install added.
+The
+.B .herdmux.bak
+backups are left in place.
+A running tmux server keeps the layer until it is restarted.
+.RS
+.TP
+.B \-\-purge
+Also remove herdmux's config directory.
+.RE
+.TP
+.B herdmux man
+Show this manual.
+When standard output is a terminal and
+.BR man (1)
+is on PATH, the page is shown with
+.BR "man \-l \-" ;
+otherwise the roff source is printed, so
+.B herdmux man > herdmux.1
+saves it.
+.TP
+.B herdmux help \fR[\fB\-\-all\fR | \fIcommand\fR]
+Show the command list, or one command's usage and flags.
+.B \-\-all
+includes the hidden commands.
+.B herdmux \-\-help
+is the same as
+.BR "herdmux help" .
+.TP
+.B herdmux \-\-version
+Print the version.
+.PP
+The
+.B \-\-client
+flag names the tmux client to act for; the key bindings pass
+.BR \(aq#{client_name}\(aq .
+Errors from a run with
+.B \-\-client
+(or inside a popup) are shown as a red message on that client and logged.
+.SS Hidden commands
+These are called by tmux hooks and the agent integrations, and are listed by
+.BR "herdmux help \-\-all" .
+They always exit 0 and log errors.
+.TP
+.B herdmux hook claude
+The claude hook adapter: one claude hook event as JSON on stdin becomes a
+state report for
+.BR $TMUX_PANE .
+Without
+.B HERDMUX=1
+and
+.B TMUX_PANE
+it does nothing.
+.TP
+.B herdmux tmux\-hook \fIevent\fR [\fIargs\fR]
+The entry point for herdmux's tmux hooks:
+.B pane\-focus\-in
+.I window_id
+(a Visit),
+.B git\-refresh
+.I pane_id
+and
+.BR recheck .
+.SH KEY BINDINGS
+.B herdmux init
+binds these keys by default:
+.TP
+.B prefix a
+Agent picker
+.RB ( picker ).
+.TP
+.B prefix u
+Jump to the next agent with Attention
+.RB ( next\-attention ).
+.TP
+.B prefix r
+Window organiser
+.RB ( organiser ).
+.TP
+.B prefix o
+Launch an agent
+.RB ( launch ).
+.TP
+.B prefix g
+Sessionizer
+.RB ( sessionizer ).
+.TP
+(unbound)
+Colorscheme picker
+.RB ( colorscheme ).
+.PP
+Change them in the
+.B [keys]
+section of
+.IR config.toml ;
+the action names are the ones in parentheses.
+A value is
+.BI "\(dqprefix " key \(dq
+(a key after the tmux prefix),
+.I \(dqkey\(dq
+alone (a key in the root table, pressed without the prefix, such as
+.BR \(dqM\-a\(dq ),
+or
+.B \(dq\(dq
+to unbind.
+Key names follow tmux: an optional
+.BR C\- ,
+.B M\-
+or
+.B S\-
+modifier (or
+.BR ^ )
+in front of one character or a named key such as
+.BR Enter ,
+.B F5
+or
+.BR PageUp .
+For example:
+.PP
+.EX
+[keys]
+sessionizer = "prefix f"
+colorscheme = "prefix C"
+next\-attention = "M\-u"
+launch = ""
+.EE
+.PP
+An unknown action, a bad key name or two actions on one key make all of
+.B [keys]
+fall back to the defaults, with the error shown in red.
+A key that herdmux moves away from or unbinds gets back whatever was bound
+there before (tmux's default or tmux.conf's binding).
+The bindings carry notes, so they show in tmux's \fBprefix ?\fP list.
+Changes apply at the next
+.B herdmux init
+(a tmux.conf reload), or at once through the MCP
+.B write_config
+tool.
+.SS Keys inside the popups
+.TP
+Agent picker
+j/k or the arrows move, Enter jumps to the agent, / filters (by agent, place
+and state; Enter keeps the filter, Esc clears it), Tab switches between all
+sessions and this session, s toggles sorting by place or Attention first,
+n launches a new agent (then the agent's key), x stops the selected agent
+(y confirms; the pane stays), q closes, and Esc clears a kept filter or closes.
+.TP
+Window organiser
+j/k or the arrows move, gg and G go to the first and last window, Enter jumps
+to the window, space grabs it (j/k then carry it, space or Enter drops it,
+Esc puts it back), r renames (Enter saves, Esc cancels), x kills (y confirms;
+the session's last window cannot be killed), u undoes moves and renames,
+q or Esc closes.
+.TP
+Launch prompt
+Each agent's key launches it; q or Esc closes.
+.TP
+Sessionizer
+j/k or the arrows move, Enter switches (see
+.BR SESSIONIZER ),
+/ filters by name, q closes, and Esc clears a kept filter or closes.
+.TP
+Colorscheme picker
+j/k or the arrows move and preview, g/Home and G/End go to the first and last
+scheme, / filters by name and family, Enter saves the highlighted scheme,
+and q or Esc reverts to the saved one (Esc first clears a kept filter).
+.SH CONFIGURATION
+herdmux's configuration lives in its config directory:
+.B $HERDMUX_CONFIG_DIR
+if set, else
+.I $XDG_CONFIG_HOME/herdmux
+if
+.B XDG_CONFIG_HOME
+is set to an absolute path (a relative one is ignored), else
+.IR ~/.config/herdmux .
+It holds:
+.TP
+.I config.toml
+The launch menu, the keys and the sessionizer roots.
+.TP
+.I colorscheme
+The saved colorscheme's name, written by the picker,
+.B herdmux colorscheme
+.I name
+and the MCP
+.B set_colorscheme
+tool.
+Missing or empty means
+.BR flexoki\-dark .
+.TP
+.IR colors/ name .toml
+The user's own colorschemes, or overrides of bundled ones (see
+.BR COLORSCHEMES ).
+.SS config.toml
+Every section is optional; a missing file means all defaults.
+The file is read when it is needed (by
+.B herdmux init
+for keys, and by the popups and
+.B herdmux launch
+for the menu and roots), so menu and root changes apply at the next popup.
+.TP
+.B [[agent]]
+The launch menu, in order.
+Any valid entry replaces the whole default menu, which is:
+.RS
+.PP
+.EX
+[[agent]]
+name = "claude"
+key = "c"
+command = "claude"
+\&
+[[agent]]
+name = "opencode"
+key = "o"
+command = "opencode"
+\&
+[[agent]]
+name = "pi"
+key = "p"
+command = "pi"
+.EE
+.TP
+.B name
+Required.
+The new window's name and the argument to
+.BR "herdmux launch" .
+Up to 32 letters, digits,
+.BR . ,
+.B _
+or
+.BR \- ,
+starting with a letter or digit.
+.TP
+.B command
+Required.
+One line, typed into the new window's shell as is.
+The entry is shown only if the command's first word (after any leading
+.IB VAR = value
+words) is an executable on
+.BR PATH ,
+so one config works on any machine.
+.TP
+.B key
+Optional.
+One printable, non\-space character, not
+.B q
+(which closes the prompt).
+When omitted, the first letter or digit of the name not already taken is
+used.
+.PP
+An entry with a missing or bad name, command or key makes the menu fall back
+to the defaults.
+A later entry with a duplicate name or key is dropped.
+.RE
+.TP
+.B [keys]
+One entry per action:
+.BR picker ,
+.BR next\-attention ,
+.BR organiser ,
+.BR launch ,
+.B sessionizer
+and
+.BR colorscheme .
+Defaults:
+.RS
+.PP
+.EX
+[keys]
+picker = "prefix a"
+next\-attention = "prefix u"
+organiser = "prefix r"
+launch = "prefix o"
+sessionizer = "prefix g"
+colorscheme = ""
+.EE
+.PP
+See
+.B KEY BINDINGS
+for the value format.
+.RE
+.TP
+.B [sessionizer]
+.RS
+.TP
+.B roots
+A list of directories whose subdirectories the sessionizer offers, each an
+absolute path
+.RB ( ~
+is not expanded).
+Default: none (only sessions are listed).
+.TP
+.B depth
+How many levels below each root to list.
+Default: 3.
+.PP
+See
+.BR SESSIONIZER .
+.RE
+.PP
+A broken file never leaves herdmux without a config.
+Bad TOML or a value of the wrong type means all defaults; a broken
+.B [[agent]]
+entry means the default agents; a bad
+.B [keys]
+entry means the default keys; a
+.B [sessionizer]
+root that is not an absolute path is left out (the other roots are kept);
+an unknown key elsewhere is only reported.
+Problems are shown in red, starting
+.RB \(lq config.toml: \(rq,
+by
+.BR "herdmux init" ,
+the launch prompt, the picker and the sessionizer.
+.SH SESSIONIZER
+The sessionizer
+.RB ( "herdmux sessionizer" ,
+.B prefix g
+by default) switches between tmux sessions and opens project directories as
+sessions.
+To bind it elsewhere set, for example,
+.B sessionizer = \(dqprefix f\(dq
+in
+.BR [keys] ;
+.B \(dq\(dq
+unbinds it.
+.PP
+Its list always starts with every open tmux session, sorted by name, each
+with a count of its agents.
+Then come the directories found under the
+.B [sessionizer]
+roots, sorted by name.
+With no roots it lists only sessions.
+.PP
+.EX
+[sessionizer]
+roots = ["/home/user/projects", "/home/user/src"]
+depth = 2
+.EE
+.PP
+.B roots
+are absolute paths.
+They are used exactly as written:
+.B ~
+and environment variables are not expanded.
+A root that is not absolute (such as
+.I projects
+or
+.IR ~/projects )
+is left out and reported in red in the sessionizer, for example
+.RS
+.PP
+.EX
+config.toml: [sessionizer] roots: "projects" is not an absolute path (~ is not expanded)
+.EE
+.RE
+.PP
+The other roots are still listed.
+.PP
+.B depth
+counts levels below each root, and every level is listed, not only the
+deepest: the root itself, each directory in between, and the directories
+.B depth
+levels down.
+.B depth = 0
+lists only the roots themselves.
+A missing or negative
+.B depth
+silently means 3.
+Hidden directories (names starting with
+.BR . )
+and everything inside them are skipped, and directories that cannot be read
+are skipped silently.
+Large trees with the default depth can produce long lists; a lower depth or
+narrower roots keep them short.
+.PP
+Enter on a session switches the client to it.
+Enter on a directory switches to the session named after the directory,
+creating that session (starting in the directory) first if it does not
+exist.
+The name is the directory's base name with everything before its first ASCII
+letter dropped (typically a numeric prefix of digits, dots and dashes), then
+each \fB.\fP and \fB:\fP turned into \fB_\fP, as tmux does for session names.
+For example,
+.I 25.14\-herdmux
+becomes
+.B herdmux
+and
+.I 12.35\-my.proj
+becomes
+.BR my_proj .
+Two directories that give the same name share one session.
+.SH COLORSCHEMES
+A colorscheme styles the whole tmux look: pane backgrounds, status bar,
+window tabs, borders, popups, menus and messages, as well as everything
+herdmux draws.
+One is chosen by name.
+.PP
+25 schemes are bundled:
+catppuccin\-frappe, catppuccin\-latte, catppuccin\-macchiato,
+catppuccin\-mocha, flexoki\-dark, flexoki\-light, gruvbox\-dark,
+gruvbox\-light, kanagawa\-dragon, kanagawa\-lotus, kanagawa\-wave,
+onedark\-cool, onedark\-dark, onedark\-darker, onedark\-deep,
+onedark\-light, onedark\-warm, onedark\-warmer, rose\-pine\-dawn,
+rose\-pine\-main, rose\-pine\-moon, tokyonight\-day, tokyonight\-moon,
+tokyonight\-night and tokyonight\-storm.
+The default is
+.BR flexoki\-dark .
+.PP
+A user scheme is a file
+.IR colors/ name .toml
+in the config directory.
+The name must start with a letter or digit and contain only letters, digits,
+.B _
+and
+.B \-
+(at most 64 characters); other files there are ignored.
+A user file with a bundled scheme's name replaces that scheme entirely.
+The file needs a
+.B [colors]
+table with all 16 slots as
+.B \(dq#rrggbb\(dq
+strings:
+.PP
+.EX
+[colors]
+pane_bg               = "#100f0f"
+bg                    = "#1c1b1a"
+bg_raised             = "#403e3c"
+bg_overlay            = "#282726"
+fg                    = "#cecdc3"
+fg_muted              = "#878580"
+fg_on_attention       = "#100f0f"
+border                = "#403e3c"
+border_active         = "#ce5d97"
+accent                = "#ce5d97"
+state_working         = "#d0a215"
+state_needs_input     = "#d14d41"
+state_done            = "#879a39"
+state_unknown         = "#878580"
+attention_needs_input = "#d14d41"
+attention_done        = "#879a39"
+.EE
+.PP
+Other keys and tables are ignored.
+An invalid scheme is listed with the reason and cannot be chosen.
+If the saved choice is unknown or invalid,
+.B herdmux init
+falls back to flexoki\-dark (the user's override of it, if valid) and shows
+a warning; the saved file is not changed.
+.SH AGENT STATES AND ATTENTION
+An
+.I agent
+is a tmux pane in which an agent CLI (claude, opencode or pi) is running.
+It belongs to the session its pane is in; moving the pane moves the agent.
+claude reports through its hooks, opencode through a plugin and pi through an
+extension, all calling herdmux; any program can report with
+.BR "herdmux report" .
+.PP
+Each agent has one
+.IR "agent state" :
+.TP
+.B working
+The agent is working.
+.TP
+.B needs\-input
+The agent is blocked on the user: a permission prompt or a question.
+.TP
+.B done
+The agent finished its turn; it is the user's move.
+.TP
+.B unknown
+An agent process recognised by its name only, with no state reporting (for
+example, an agent started without its integration or before
+.BR "herdmux init" ).
+.PP
+An agent that exits or dies, or is suspended or put in the background, is
+dropped.
+.PP
+.I Attention
+is a sticky flag on an agent, raised whenever it moves into
+.B needs\-input
+or
+.B done
+while its window is not shown in any attached client.
+Its kind follows the agent's latest
+.BR needs\-input / done
+state.
+When Attention is raised, herdmux rings the terminal bell once and shows a
+message naming the sessions.
+Attention never times out.
+It is cleared only by a
+.IR Visit :
+the agent's window being shown in an attached client, which clears
+Attention on every agent in that window, whatever their state (the agent's
+pane does not need to be active).
+An agent that exits or dies takes its Attention with it.
+.PP
+In the status bar each window tab shows one state icon per agent; a tab whose
+agent has Attention is filled with the
+.B attention_needs_input
+or
+.B attention_done
+colour.
+.B prefix u
+.RB ( next\-attention )
+jumps to the agent with Attention that is most urgent:
+.B needs\-input
+before
+.BR done ,
+oldest first.
+.SH ENVIRONMENT
+.TP
+.B HERDMUX_CONFIG_DIR
+The config directory, instead of
+.I $XDG_CONFIG_HOME/herdmux
+or
+.IR ~/.config/herdmux .
+.TP
+.B HERDMUX
+Set to
+.B 1
+in the tmux global environment by
+.BR "herdmux init" .
+The agent integrations and
+.B herdmux mcp
+do nothing without it.
+.TP
+.B XDG_STATE_HOME
+If set to an absolute path, the log is
+.IR $XDG_STATE_HOME/herdmux/log .
+.TP
+.B XDG_CONFIG_HOME
+If set to an absolute path, the config directory is
+.I $XDG_CONFIG_HOME/herdmux
+(unless
+.B HERDMUX_CONFIG_DIR
+is set), and
+.B herdmux install
+and
+.B uninstall
+use
+.I $XDG_CONFIG_HOME/tmux/tmux.conf
+and
+.IR $XDG_CONFIG_HOME/opencode/ .
+.TP
+.BR TMUX ", " TMUX_PANE
+Set by tmux; they tell herdmux which server and pane it runs for.
+.TP
+.B PATH
+.B herdmux
+must be on
+.BR sh 's
+PATH, because tmux runs key bindings and hooks through
+.BR sh .
+The launch menu shows only agents whose command is on PATH.
+.PP
+.B HERDMUX_POPUP
+and
+.B HERDMUX_CLIENT
+are set by herdmux for its own popups and are not meant to be set by hand.
+.SH FILES
+.TP
+.I ~/.config/herdmux/config.toml
+The configuration (or
+.I config.toml
+in
+.B $XDG_CONFIG_HOME/herdmux
+or
+.BR $HERDMUX_CONFIG_DIR ;
+see
+.BR CONFIGURATION ).
+.TP
+.I ~/.config/herdmux/colorscheme
+The saved colorscheme's name.
+.TP
+.IR ~/.config/herdmux/colors/ name .toml
+User colorschemes and overrides.
+.TP
+.I ~/.local/state/herdmux/log
+The log (or
+.IR $XDG_STATE_HOME/herdmux/log ).
+.TP
+.I ~/.config/tmux/tmux.conf
+install adds the block between
+.B # >>> herdmux >>>
+and
+.BR "# <<< herdmux <<<" .
+.TP
+.I ~/.claude/settings.json
+install adds claude hook entries running
+.BR "herdmux hook claude" .
+.TP
+.I ~/.config/opencode/plugins/herdmux\-agent\-state.js
+The opencode plugin.
+.TP
+.I ~/.pi/agent/extensions/herdmux\-agent\-state.ts
+The pi extension.
+.TP
+.IB file .herdmux.bak
+The original of each file install edited, saved before its first edit.
+.PP
+With
+.BR "install \-\-mcp" ,
+herdmux is also registered as an MCP server with claude
+.RB ( "claude mcp add \-s user herdmux \-\- herdmux mcp" ,
+plus read\-tool permissions in
+.IR ~/.claude/settings.json ),
+opencode (in
+.IR ~/.config/opencode/opencode.json )
+and pi
+.RI ( ~/.pi/agent/mcp.json ).
+.SH EXIT STATUS
+0 on success, 1 on failure, and 2 for usage errors and
+.RB \(lq "not inside tmux" \(rq.
+.BR report ,
+.B hook
+and
+.B tmux\-hook
+always exit 0.
+.SH EXAMPLES
+Install, check what would change first, then reload tmux:
+.PP
+.EX
+herdmux install \-\-dry\-run
+herdmux install
+tmux source\-file ~/.config/tmux/tmux.conf
+.EE
+.PP
+Report a state from a script running in an agent's pane:
+.PP
+.EX
+herdmux report needs\-input \-\-agent claude \-\-pid "$AGENT_PID"
+.EE
+.PP
+Choose a colorscheme from the shell:
+.PP
+.EX
+herdmux colorscheme \-\-list
+herdmux colorscheme tokyonight\-night
+.EE
+.SH SEE ALSO
+.BR tmux (1)

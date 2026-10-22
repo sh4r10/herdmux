@@ -116,7 +116,8 @@ func walk(dir string, d, maxDepth int, dirs map[string]bool) error {
 }
 
 // SessionName extracts the name from a directory path, matching tmux-sessionizer's rule:
-// strip leading digits, dots and hyphens, e.g. "12.34-herdmux" → "herdmux".
+// drop everything before the first ASCII letter (typically a numeric prefix of
+// digits, dots and dashes), e.g. "12.34-herdmux" → "herdmux".
 // Then "." and ":" become "_", as tmux does to a new session's name, so the
 // name HasSession looks up is the one new-session made ("my.proj" → "my_proj").
 func SessionName(dir string) string {
@@ -127,7 +128,7 @@ func SessionName(dir string) string {
 	if base == "." || base == "/" || base == "" {
 		return base
 	}
-	// Regex: ^[^A-Za-z]* matches leading non-letters; [A-Za-z]+ onwards is the name.
+	// ^[^A-Za-z]* matches everything before the first ASCII letter; the rest is the name.
 	re := regexp.MustCompile(`^[^A-Za-z]*(.*)`)
 	matches := re.FindStringSubmatch(base)
 	if len(matches) > 1 && matches[1] != "" {

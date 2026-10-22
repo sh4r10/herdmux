@@ -10,7 +10,9 @@
 #
 # The server's environment: .dev/bin (the built herdmux) and dev/shims (the
 # per-agent wrappers) first on PATH, HERDMUX_CONFIG_DIR=.dev/config, and no
-# TMUX, TMUX_PANE, HERDR_* or HERDMUX*. Panes run `bash --rcfile dev/bashrc`,
+# TMUX, TMUX_PANE, HERDR_* or HERDMUX*. HERDMUX_CONFIG_DIR is always set: it
+# wins over XDG_CONFIG_HOME, which is inherited (other tools in dev panes use
+# it) and would otherwise point herdmux at the real config dir. Panes run `bash --rcfile dev/bashrc`,
 # which puts both dirs back in front after ~/.profile and ~/.bashrc have
 # prepended theirs. Every tmux call here passes -L herdmux-dev explicitly;
 # herdmux itself has no dev code path.

@@ -54,10 +54,11 @@ func runSessionizer(e *env, c *tmux.Client, clientName string) error {
 		return showOnClient(e, c, client, "sessionizer", err)
 	}
 
-	cfg, _ := config.Load(e.getenv)
+	cfg, cfgErr := config.Load(e.getenv) // read on every open
 	m, err := popup.Run(usessionizer.New(usessionizer.Options{
-		Backend: usessionizer.TmuxBackend{C: c, Cfg: cfg.Sessionizer},
-		Styles:  style.New(pal),
+		Backend:   usessionizer.TmuxBackend{C: c, Cfg: cfg.Sessionizer},
+		Styles:    style.New(pal),
+		ConfigErr: cfgErr,
 	}))
 	if err != nil {
 		return showOnClient(e, c, client, "sessionizer", err)

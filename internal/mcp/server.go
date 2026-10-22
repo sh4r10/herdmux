@@ -4,7 +4,7 @@
 // server in the caller's $TMUX) and list agents. It never prompts and never
 // controls agents (no launch, stop, jump or client switch).
 //
-// Every path resolves under HERDMUX_CONFIG_DIR (config.Dir); there is no dev
+// Every path resolves under the config dir (config.Dir); there is no dev
 // code path. Without $TMUX the live tools (set_colorscheme, list_agents)
 // fail with ErrNoTmux, and the file tools still work.
 package mcp
@@ -75,7 +75,7 @@ Colorschemes are TOML files with one [colors] table of 16 "#rrggbb" slots; set_c
 list_agents shows every agent pane; "caller" marks yours. Read before you write.`
 
 // Server builds the MCP server. getenv supplies TMUX, TMUX_PANE,
-// HERDMUX_CONFIG_DIR and HOME (pass os.Getenv, or a test's map).
+// HERDMUX_CONFIG_DIR, XDG_CONFIG_HOME and HOME (pass os.Getenv, or a test's map).
 func Server(getenv func(string) string) *sdk.Server {
 	s := sdk.NewServer(&sdk.Implementation{Name: Name, Title: "herdmux"}, &sdk.ServerOptions{Instructions: instructions})
 	h := &handlers{getenv: getenv}

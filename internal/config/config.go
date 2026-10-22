@@ -1,4 +1,4 @@
-// Package config parses $HERDMUX_CONFIG_DIR/config.toml: the [[agent]] launch
+// Package config parses config.toml in the config dir (Dir): the [[agent]] launch
 // entries and the [keys] bindings, with their defaults and fallbacks. Bind
 // applies [keys] to a tmux server.
 //
@@ -89,7 +89,8 @@ type Error struct{ Problems []string }
 
 func (e *Error) Error() string { return FileName + ": " + strings.Join(e.Problems, "; ") }
 
-// Path is $HERDMUX_CONFIG_DIR/config.toml (default ~/.config/herdmux/config.toml).
+// Path is config.toml in Dir: $HERDMUX_CONFIG_DIR, $XDG_CONFIG_HOME/herdmux
+// or ~/.config/herdmux.
 func Path(getenv func(string) string) (string, error) {
 	dir, err := Dir(getenv)
 	if err != nil {
@@ -350,16 +351,27 @@ func sortedKeys(m map[string]string) []string {
 }
 
 // parseSessionizer parses the [sessionizer] section. Returns nil (use
-// defaults) when there are no roots. Bad depth is silently ignored (uses default).
+// defaults) when there are no valid roots. A root that is not an absolute
+// path (herdmux would walk it from its own working directory) is dropped and
+// reported; the valid ones are kept. Bad depth is silently ignored (uses
+// default).
 func parseSessionizer(raw rawSessionizer) (*Sessionizer, []string) {
-	if len(raw.Roots) == 0 {
-		return nil, nil
+	var roots, problems []string
+	for _, r := range raw.Roots {
+		if !filepath.IsAbs(r) {
+			problems = append(problems, fmt.Sprintf("[sessionizer] roots: %q is not an absolute path (~ is not expanded)", r))
+			continue
+		}
+		roots = append(roots, r)
+	}
+	if len(roots) == 0 {
+		return nil, problems
 	}
 	depth := DefaultSessionizer().Depth
 	if raw.Depth != nil && *raw.Depth >= 0 {
 		depth = *raw.Depth
 	}
-	return &Sessionizer{Roots: raw.Roots, Depth: depth}, nil
+	return &Sessionizer{Roots: roots, Depth: depth}, problems
 }
 
 // Agent returns the entry named name.

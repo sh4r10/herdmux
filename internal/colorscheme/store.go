@@ -78,7 +78,7 @@ func DefaultScheme() Scheme {
 
 // Store is the schemes and saved choice under one config dir.
 type Store struct {
-	Dir string // the config dir ($HERDMUX_CONFIG_DIR)
+	Dir string // the config dir (config.Dir)
 }
 
 // NewStore returns the store under the config dir dir.

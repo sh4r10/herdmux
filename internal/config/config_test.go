@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
+	"slices"
 	"strings"
 	"testing"
 )
@@ -64,6 +65,38 @@ func TestLoadHonoursConfigDir(t *testing.T) {
 	p, _ := Path(getenv(map[string]string{"HOME": "/h"}))
 	if p != "/h/.config/herdmux/config.toml" {
 		t.Errorf("default path %q", p)
+	}
+}
+
+// The config dir: HERDMUX_CONFIG_DIR wins, then an absolute
+// XDG_CONFIG_HOME, then ~/.config. A relative XDG_CONFIG_HOME is ignored, as
+// the XDG spec says.
+func TestDirPrecedence(t *testing.T) {
+	t.Parallel()
+	for _, tc := range []struct {
+		name string
+		env  map[string]string
+		want string
+	}{
+		{"HERDMUX_CONFIG_DIR wins", map[string]string{"HERDMUX_CONFIG_DIR": "/c", "XDG_CONFIG_HOME": "/x", "HOME": "/h"}, "/c"},
+		{"absolute XDG_CONFIG_HOME", map[string]string{"XDG_CONFIG_HOME": "/x", "HOME": "/h"}, "/x/herdmux"},
+		{"XDG_CONFIG_HOME cleaned", map[string]string{"XDG_CONFIG_HOME": "/x/", "HOME": "/h"}, "/x/herdmux"},
+		{"relative XDG_CONFIG_HOME ignored", map[string]string{"XDG_CONFIG_HOME": "x", "HOME": "/h"}, "/h/.config/herdmux"},
+		{"~ XDG_CONFIG_HOME ignored", map[string]string{"XDG_CONFIG_HOME": "~/.cfg", "HOME": "/h"}, "/h/.config/herdmux"},
+		{"fallback to HOME", map[string]string{"HOME": "/h"}, "/h/.config/herdmux"},
+		{"XDG without HOME", map[string]string{"XDG_CONFIG_HOME": "/x"}, "/x/herdmux"},
+	} {
+		got, err := Dir(getenv(tc.env))
+		if err != nil || got != tc.want {
+			t.Errorf("%s: Dir = %q, %v; want %q", tc.name, got, err, tc.want)
+		}
+	}
+	if d, err := Dir(getenv(map[string]string{"XDG_CONFIG_HOME": "rel"})); err == nil {
+		t.Errorf("no HOME and a relative XDG_CONFIG_HOME: Dir = %q, want an error", d)
+	}
+	p, _ := Path(getenv(map[string]string{"XDG_CONFIG_HOME": "/x", "HOME": "/h"}))
+	if p != "/x/herdmux/config.toml" {
+		t.Errorf("Path under XDG_CONFIG_HOME %q", p)
 	}
 }
 
@@ -344,5 +377,37 @@ depth = -1
 `))
 	if len(cfg.Sessionizer.Roots) != 0 || cfg.Sessionizer.Depth == 0 {
 		t.Errorf("empty sessionizer %v/%d", cfg.Sessionizer.Roots, cfg.Sessionizer.Depth)
+	}
+}
+
+// A relative or ~ root would be walked from herdmux's working directory: it is
+// reported and dropped, and the absolute roots are kept.
+func TestSessionizerRelativeRoots(t *testing.T) {
+	t.Parallel()
+	cfg, err := Parse([]byte(`[sessionizer]
+roots = ["projects", "/srv/src", "~/code", "./x"]
+depth = 2
+`))
+	msg := problems(t, err)
+	for _, r := range []string{"projects", "~/code", "./x"} {
+		want := `[sessionizer] roots: "` + r + `" is not an absolute path (~ is not expanded)`
+		if !strings.Contains(msg, want) {
+			t.Errorf("missing %q in %q", want, msg)
+		}
+	}
+	if strings.Contains(msg, "/srv/src") {
+		t.Errorf("the absolute root was reported: %q", msg)
+	}
+	if !slices.Equal(cfg.Sessionizer.Roots, []string{"/srv/src"}) || cfg.Sessionizer.Depth != 2 {
+		t.Errorf("sessionizer %v/%d, want [/srv/src]/2", cfg.Sessionizer.Roots, cfg.Sessionizer.Depth)
+	}
+
+	// No valid root left: sessions only, still reported.
+	cfg, err = Parse([]byte("[sessionizer]\nroots = [\"~\"]\n"))
+	if msg := problems(t, err); !strings.Contains(msg, `"~" is not an absolute path`) {
+		t.Errorf("got %q", msg)
+	}
+	if len(cfg.Sessionizer.Roots) != 0 || cfg.Sessionizer.Depth != DefaultSessionizer().Depth {
+		t.Errorf("sessionizer %v/%d, want the default", cfg.Sessionizer.Roots, cfg.Sessionizer.Depth)
 	}
 }

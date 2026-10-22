@@ -34,7 +34,7 @@ func installTmux(e *env) (*tmux.Client, error) {
 
 // defineUninstall is `herdmux uninstall [--purge]`.
 func defineUninstall(fs *flag.FlagSet) func(*env, []string) error {
-	purge := fs.Bool("purge", false, "also remove ~/.config/herdmux")
+	purge := fs.Bool("purge", false, "also remove the herdmux config dir")
 	return func(e *env, args []string) error {
 		if len(args) > 0 {
 			return usagef("uninstall takes no arguments")

@@ -33,6 +33,8 @@ var verbs = []verb{
 		define: defineInstall},
 	{name: "uninstall", synopsis: "[--purge]", summary: "remove exactly what install wrote",
 		define: defineUninstall},
+	{name: "man", summary: "show the full manual (prints the roff source when not on a terminal)",
+		define: defineMan},
 	{name: "help", synopsis: "[--all | command]", summary: "show help; --all includes hidden commands"},
 
 	// Hidden.
