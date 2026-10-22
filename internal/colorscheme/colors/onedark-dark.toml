@@ -1,0 +1,19 @@
+# onedark-dark: a herdmux colorscheme, hand-mapped from the theme's official palette.
+# source: https://github.com/navarasu/onedark.nvim (lua/onedark/palette.lua, dark)
+[colors]
+pane_bg               = "#282c34"
+bg                    = "#21252b"
+bg_raised             = "#393f4a"
+bg_overlay            = "#31353f"
+fg                    = "#abb2bf"
+fg_muted              = "#848b98"
+fg_on_attention       = "#181a1f"
+border                = "#3b3f4c"
+border_active         = "#61afef"
+accent                = "#c678dd"
+state_working         = "#e5c07b"
+state_needs_input     = "#e86671"
+state_done            = "#98c379"
+state_unknown         = "#848b98"
+attention_needs_input = "#e86671"
+attention_done        = "#98c379"

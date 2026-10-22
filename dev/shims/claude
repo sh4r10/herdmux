@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+# herdmux-dev only (dev/run.sh puts dev/shims on the server's PATH): runs the
+# real claude, found further along PATH, with herdmux's settings and MCP
+# server per launch. Every argument is passed through. ~/.claude and
+# ~/.claude.json are never touched.
+#
+# dev/claude/settings.json is internal/integrations/claude/settings.json's
+# hooks plus permissions.allow for the four read-only MCP tools (claude takes
+# one --settings; TestDevClaudeSettings keeps the hooks in sync).
+# dev/claude/mcp.json registers `herdmux mcp`. --mcp-config
+# takes several values, so --settings goes after it to end that list.
+here=$(cd "$(dirname "$0")" && pwd)
+root=$(cd "$here/../.." && pwd)
+settings=$root/dev/claude/settings.json
+mcp=$root/dev/claude/mcp.json
+IFS=:
+for d in $PATH; do
+  [ -n "$d" ] && [ "$d" -ef "$here" ] && continue
+  if [ -x "$d/claude" ] && [ ! -d "$d/claude" ]; then
+    unset IFS
+    exec "$d/claude" --mcp-config "$mcp" --settings "$settings" "$@"
+  fi
+done
+echo "claude (herdmux-dev shim): no real claude further along PATH" >&2
+exit 127

@@ -1,0 +1,19 @@
+# onedark-cool: a herdmux colorscheme, hand-mapped from the theme's official palette.
+# source: https://github.com/navarasu/onedark.nvim (lua/onedark/palette.lua, cool)
+[colors]
+pane_bg               = "#242b38"
+bg                    = "#1e242e"
+bg_raised             = "#343e4f"
+bg_overlay            = "#2d3343"
+fg                    = "#a5b0c5"
+fg_muted              = "#7d899f"
+fg_on_attention       = "#151820"
+border                = "#363c51"
+border_active         = "#5ab0f6"
+accent                = "#ca72e4"
+state_working         = "#ebc275"
+state_needs_input     = "#ef5f6b"
+state_done            = "#97ca72"
+state_unknown         = "#7d899f"
+attention_needs_input = "#ef5f6b"
+attention_done        = "#97ca72"

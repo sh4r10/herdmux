@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+# herdmux-dev pi shim: exec the real pi with the herdmux extension loaded for
+# this launch only (`-e` adds to the user's installed packages; nothing is
+# written to ~/.pi).
+set -euo pipefail
+shims=$(cd "$(dirname "$0")" && pwd)
+root=$(cd "$shims/../.." && pwd)
+
+real=
+IFS=: read -ra dirs <<<"$PATH"
+for d in "${dirs[@]}"; do
+  [ -n "$d" ] && [ "$(cd "$d" 2>/dev/null && pwd)" != "$shims" ] || continue
+  if [ -x "$d/pi" ] && [ ! -d "$d/pi" ]; then real=$d/pi && break; fi
+done
+[ -n "$real" ] || { echo "pi shim: no real pi further down PATH" >&2; exit 127; }
+
+args=(-e "$root/internal/integrations/pi/herdmux-agent-state.ts")
+# The dev-only MCP registration (a separate -e extension; the
+# installed extension never registers MCP).
+args+=(-e "$root/dev/pi/herdmux-mcp.ts")
+exec "$real" "${args[@]}" "$@"

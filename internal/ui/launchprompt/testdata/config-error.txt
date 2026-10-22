@@ -1,0 +1,10 @@
+╭─ launch ──────────────────────────────────────────────────────────╮
+│ launch in ~                                                       │
+│                                                                   │
+│  c  claude                                                        │
+│  o  opencode                                                      │
+│  p  pi                                                            │
+│                                                                   │
+│ config.toml: agent "x": missing command; using the default agents │
+│ press a key to launch · q close                                   │
+╰───────────────────────────────────────────────────────────────────╯

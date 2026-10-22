@@ -1,0 +1,44 @@
+╭─ colorscheme ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╮
+│ 27 schemes · saved flexoki-dark                                                                                                                    │
+│                                                                                                                                                    │
+│  flexoki                                                   │ tokyonight-night · dark                                                               │
+│  ✓ flexoki-dark                                            │ user/tokyonight-night.toml, replaces the bundled tokyonight-night                     │
+│    flexoki-light                                           │                                                                                       │
+│  tokyonight                                                │      pane_bg #000000                     bg #16161e                                   │
+│ ▌  tokyonight-night  override                              │      bg_raised #283457                   bg_overlay #292e42                           │
+│    tokyonight-storm                                        │      fg #c0caf5                          fg_muted #565f89                             │
+│    tokyonight-moon                                         │      fg_on_attention #15161e             border #3b4261                               │
+│    tokyonight-day                                          │      border_active #7aa2f7               accent #ff79c6                               │
+│  catppuccin                                                │      state_working #e0af68               state_needs_input #f7768e                    │
+│    catppuccin-mocha                                        │      state_done #9ece6a                  state_unknown #565f89                        │
+│    catppuccin-macchiato                                    │      attention_needs_input #f7768e       attention_done #9ece6a                       │
+│    catppuccin-frappe                                       │                                                                                       │
+│    catppuccin-latte                                        │ preview                                                                               │
+│  kanagawa                                                  │  $ go test ./...                          │  menu: split   zoom                       │
+│    kanagawa-wave                                           │  ok  herdmux 0.42s                        │ copy selection more text                  │
+│    kanagawa-dragon                                         │  # comment, muted                         │                                           │
+│    kanagawa-lotus                                          │ ──────────────────────────────────────────┴────────────────────────────────────────── │
+│  rose-pine                                                 │  message: colorscheme saved                                                           │
+│    rose-pine-main                                          │  herdmux   1:shell   2:claude   3:opencode   4:notes           ~/herdmux  main ●  │
+│    rose-pine-moon                                          │                                                                                       │
+│    rose-pine-dawn                                          │                                                                                       │
+│  gruvbox                                                   │                                                                                       │
+│    gruvbox-dark                                            │                                                                                       │
+│    gruvbox-light                                           │                                                                                       │
+│  onedark                                                   │                                                                                       │
+│    onedark-dark                                            │                                                                                       │
+│    onedark-darker                                          │                                                                                       │
+│    onedark-cool                                            │                                                                                       │
+│    onedark-deep                                            │                                                                                       │
+│    onedark-warm                                            │                                                                                       │
+│    onedark-warmer                                          │                                                                                       │
+│    onedark-light                                           │                                                                                       │
+│  user                                                      │                                                                                       │
+│  ! broken-neon  bad border, no attention_done  user        │                                                                                       │
+│    midnight-moss  user                                     │                                                                                       │
+│                                                            │                                                                                       │
+│                                                            │                                                                                       │
+│                                                            │                                                                                       │
+│                                                            │                                                                                       │
+│ j/k move · g/G first/last · ⏎ save · esc revert · / filter · q close                                                                               │
+╰────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯

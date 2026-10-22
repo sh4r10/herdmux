@@ -1,0 +1,19 @@
+# catppuccin-latte: a herdmux colorscheme, hand-mapped from the theme's official palette.
+# source: https://github.com/catppuccin/palette (palette.json, latte)
+[colors]
+pane_bg               = "#eff1f5"
+bg                    = "#e6e9ef"
+bg_raised             = "#bcc0cc"
+bg_overlay            = "#ccd0da"
+fg                    = "#4c4f69"
+fg_muted              = "#8c8fa1"
+fg_on_attention       = "#eff1f5"
+border                = "#ccd0da"
+border_active         = "#7287fd"
+accent                = "#8839ef"
+state_working         = "#df8e1d"
+state_needs_input     = "#d20f39"
+state_done            = "#40a02b"
+state_unknown         = "#8c8fa1"
+attention_needs_input = "#d20f39"
+attention_done        = "#40a02b"

@@ -1,0 +1,12 @@
+╭─ agents ─────────────────────────────────────────────────────────────────────────────────────────╮
+│ all sessions · by place                                                                          │
+│                                                                                                  │
+│ ▌ opencode  a-very-long…  working      30s │  opencode · a-very-long-session-name:12 an-extre… │
+│                                             │ $ echo %1                                          │
+│                                             │ output of %1                                       │
+│                                             │                                                    │
+│                                             │                                                    │
+│                                             │                                                    │
+│                                             │                                                    │
+│ j/k move · ⏎ jump · / filter · tab scope · s sort · n launch · x stop · q close                  │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯

@@ -1,0 +1,19 @@
+# tokyonight-moon: a herdmux colorscheme, hand-mapped from the theme's official palette.
+# source: https://github.com/folke/tokyonight.nvim (extras/lua/tokyonight_moon.lua)
+[colors]
+pane_bg               = "#222436"
+bg                    = "#1e2030"
+bg_raised             = "#2d3f76"
+bg_overlay            = "#2f334d"
+fg                    = "#c8d3f5"
+fg_muted              = "#636da6"
+fg_on_attention       = "#1b1d2b"
+border                = "#3b4261"
+border_active         = "#82aaff"
+accent                = "#82aaff"
+state_working         = "#ffc777"
+state_needs_input     = "#ff757f"
+state_done            = "#c3e88d"
+state_unknown         = "#636da6"
+attention_needs_input = "#ff757f"
+attention_done        = "#c3e88d"

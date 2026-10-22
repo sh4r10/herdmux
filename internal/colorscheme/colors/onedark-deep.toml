@@ -1,0 +1,19 @@
+# onedark-deep: a herdmux colorscheme, hand-mapped from the theme's official palette.
+# source: https://github.com/navarasu/onedark.nvim (lua/onedark/palette.lua, deep)
+[colors]
+pane_bg               = "#1a212e"
+bg                    = "#141b24"
+bg_raised             = "#283347"
+bg_overlay            = "#21283b"
+fg                    = "#93a4c3"
+fg_muted              = "#6c7d9c"
+fg_on_attention       = "#0c0e15"
+border                = "#2a324a"
+border_active         = "#41a7fc"
+accent                = "#c75ae8"
+state_working         = "#efbd5d"
+state_needs_input     = "#f65866"
+state_done            = "#8bcd5b"
+state_unknown         = "#6c7d9c"
+attention_needs_input = "#f65866"
+attention_done        = "#8bcd5b"

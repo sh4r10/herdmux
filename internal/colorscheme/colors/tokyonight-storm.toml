@@ -1,0 +1,19 @@
+# tokyonight-storm: a herdmux colorscheme, hand-mapped from the theme's official palette.
+# source: https://github.com/folke/tokyonight.nvim (extras/lua/tokyonight_storm.lua)
+[colors]
+pane_bg               = "#24283b"
+bg                    = "#1f2335"
+bg_raised             = "#2e3c64"
+bg_overlay            = "#292e42"
+fg                    = "#c0caf5"
+fg_muted              = "#565f89"
+fg_on_attention       = "#1d202f"
+border                = "#3b4261"
+border_active         = "#7aa2f7"
+accent                = "#7aa2f7"
+state_working         = "#e0af68"
+state_needs_input     = "#f7768e"
+state_done            = "#9ece6a"
+state_unknown         = "#565f89"
+attention_needs_input = "#f7768e"
+attention_done        = "#9ece6a"

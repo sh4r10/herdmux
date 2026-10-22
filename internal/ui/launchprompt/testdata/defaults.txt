@@ -1,0 +1,9 @@
+╭─ launch ─────────────────────────╮
+│ launch in ~/src/api              │
+│                                  │
+│  c  claude                       │
+│  o  opencode                     │
+│  p  pi                           │
+│                                  │
+│ press a key to launch · q close  │
+╰──────────────────────────────────╯

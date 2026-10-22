@@ -1,0 +1,44 @@
+╭─ colorscheme ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╮
+│ > rose█   3 schemes · saved flexoki-dark                                                                                                           │
+│                                                                                                                                                    │
+│  rose-pine                                                 │ rose-pine-main · dark                                                                 │
+│ ▌  rose-pine-main                                          │ bundled                                                                               │
+│    rose-pine-moon                                          │                                                                                       │
+│    rose-pine-dawn                                          │      pane_bg #191724                     bg #1f1d2e                                   │
+│                                                            │      bg_raised #403d52                   bg_overlay #26233a                           │
+│                                                            │      fg #e0def4                          fg_muted #6e6a86                             │
+│                                                            │      fg_on_attention #191724             border #403d52                               │
+│                                                            │      border_active #c4a7e7               accent #ebbcba                               │
+│                                                            │      state_working #f6c177               state_needs_input #eb6f92                    │
+│                                                            │      state_done #9ccfd8                  state_unknown #6e6a86                        │
+│                                                            │      attention_needs_input #eb6f92       attention_done #9ccfd8                       │
+│                                                            │                                                                                       │
+│                                                            │ preview                                                                               │
+│                                                            │  $ go test ./...                          │  menu: split   zoom                       │
+│                                                            │  ok  herdmux 0.42s                        │ copy selection more text                  │
+│                                                            │  # comment, muted                         │                                           │
+│                                                            │ ──────────────────────────────────────────┴────────────────────────────────────────── │
+│                                                            │  message: colorscheme saved                                                           │
+│                                                            │  herdmux   1:shell   2:claude   3:opencode   4:notes           ~/herdmux  main ●  │
+│                                                            │                                                                                       │
+│                                                            │                                                                                       │
+│                                                            │                                                                                       │
+│                                                            │                                                                                       │
+│                                                            │                                                                                       │
+│                                                            │                                                                                       │
+│                                                            │                                                                                       │
+│                                                            │                                                                                       │
+│                                                            │                                                                                       │
+│                                                            │                                                                                       │
+│                                                            │                                                                                       │
+│                                                            │                                                                                       │
+│                                                            │                                                                                       │
+│                                                            │                                                                                       │
+│                                                            │                                                                                       │
+│                                                            │                                                                                       │
+│                                                            │                                                                                       │
+│                                                            │                                                                                       │
+│                                                            │                                                                                       │
+│                                                            │                                                                                       │
+│ type to filter · ↑/↓ move · ⏎ keep · esc clear                                                                                                     │
+╰────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯

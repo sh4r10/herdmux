@@ -1,0 +1,19 @@
+# kanagawa-lotus: a herdmux colorscheme, hand-mapped from the theme's official palette.
+# source: https://github.com/rebelot/kanagawa.nvim (lua/kanagawa/colors.lua)
+[colors]
+pane_bg               = "#f2ecbc"
+bg                    = "#e5ddb0"
+bg_raised             = "#c9cbd1"
+bg_overlay            = "#e7dba0"
+fg                    = "#545464"
+fg_muted              = "#8a8980"
+fg_on_attention       = "#f2ecbc"
+border                = "#d5cea3"
+border_active         = "#4d699b"
+accent                = "#624c83"
+state_working         = "#77713f"
+state_needs_input     = "#c84053"
+state_done            = "#6f894e"
+state_unknown         = "#8a8980"
+attention_needs_input = "#c84053"
+attention_done        = "#6f894e"

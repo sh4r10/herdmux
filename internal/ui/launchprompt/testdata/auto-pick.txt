@@ -1,0 +1,9 @@
+╭─ launch ─────────────────────────────╮
+│ launch in /tmp                       │
+│                                      │
+│  c  claude                           │
+│  l  claude-opus  claude --model opus │
+│  p  pi                               │
+│                                      │
+│ press a key to launch · q close      │
+╰──────────────────────────────────────╯

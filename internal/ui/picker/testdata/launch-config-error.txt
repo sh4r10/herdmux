@@ -1,0 +1,20 @@
+╭─ agents ─────────────────────────────────────────────────────────────────────────────────────────────────────────────╮
+│ all sessions · by place                                                                                              │
+│                                                                                                                      │
+│ ▌ opencode  web:1 front            needs-input   1m │  opencode · web:1 front · needs-input 1m                     │
+│   claude    web:3 docs             done          2h │ $ echo %3                                                     │
+│   claude    api:1 server           working       5s │ output of %3                                                  │
+│   pi        api:2 tests            done          5m │                                                               │
+│   pi        zeta:1 misc            needs-input  10m │                                                               │
+│                                                      │                                                               │
+│                                                      │                                                               │
+│                                                      │                                                               │
+│                                                      │                                                               │
+│                                                      │                                                               │
+│                                                      │                                                               │
+│                                                      │                                                               │
+│                                                      │                                                               │
+│                                                      │                                                               │
+│ config.toml: agent "x": missing command; using the default agents                                                    │
+│ launch: c claude · o opencode · p pi · other key cancels                                                             │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯

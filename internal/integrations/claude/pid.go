@@ -1,0 +1,73 @@
+package claude
+
+import (
+	"bytes"
+	"os"
+	"path/filepath"
+	"strconv"
+	"strings"
+
+	"herdmux/internal/state"
+)
+
+// maxDepth bounds the walk up the process tree.
+const maxDepth = 16
+
+// FindClaude walks up the process tree from pid (the hook's parent; claude
+// may run the hook under `sh -c`) to the claude process, and returns its pid,
+// or 0 if no ancestor is claude. A process is claude when its argv[0]
+// basename (what tmux's #{pane_current_command} shows) or its comm matches
+// claude by state.MatchCommand: "claude", or a version number such as
+// "2.1.301" when claude runs from its versioned path.
+func FindClaude(pid int) int { return findClaude(pid, readProc) }
+
+// procInfo returns a process's names (argv[0] basename, comm) and its parent.
+type procInfo func(pid int) (names []string, ppid int, ok bool)
+
+func findClaude(pid int, info procInfo) int {
+	for range maxDepth {
+		if pid <= 1 {
+			return 0
+		}
+		names, ppid, ok := info(pid)
+		if !ok {
+			return 0
+		}
+		for _, n := range names {
+			if state.MatchCommand(n) == "claude" {
+				return pid
+			}
+		}
+		pid = ppid
+	}
+	return 0
+}
+
+func readProc(pid int) ([]string, int, bool) {
+	dir := "/proc/" + strconv.Itoa(pid)
+	stat, err := os.ReadFile(dir + "/stat")
+	if err != nil {
+		return nil, 0, false
+	}
+	// comm is in parentheses and may hold spaces; the fields after the last
+	// ')' are: state ppid ...
+	s := string(stat)
+	i, j := strings.IndexByte(s, '('), strings.LastIndexByte(s, ')')
+	if i < 0 || j < i {
+		return nil, 0, false
+	}
+	f := strings.Fields(s[j+1:])
+	if len(f) < 2 {
+		return nil, 0, false
+	}
+	ppid, err := strconv.Atoi(f[1])
+	if err != nil {
+		return nil, 0, false
+	}
+	names := []string{s[i+1 : j]}
+	if cmdline, err := os.ReadFile(dir + "/cmdline"); err == nil && len(cmdline) > 0 {
+		argv0, _, _ := bytes.Cut(cmdline, []byte{0})
+		names = append(names, filepath.Base(string(argv0)))
+	}
+	return names, ppid, true
+}

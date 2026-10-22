@@ -1,0 +1,19 @@
+# kanagawa-dragon: a herdmux colorscheme, hand-mapped from the theme's official palette.
+# source: https://github.com/rebelot/kanagawa.nvim (lua/kanagawa/colors.lua)
+[colors]
+pane_bg               = "#181616"
+bg                    = "#0d0c0c"
+bg_raised             = "#393836"
+bg_overlay            = "#282727"
+fg                    = "#c5c9c5"
+fg_muted              = "#737c73"
+fg_on_attention       = "#0d0c0c"
+border                = "#393836"
+border_active         = "#8ba4b0"
+accent                = "#8992a7"
+state_working         = "#c4b28a"
+state_needs_input     = "#c4746e"
+state_done            = "#8a9a7b"
+state_unknown         = "#737c73"
+attention_needs_input = "#c4746e"
+attention_done        = "#8a9a7b"

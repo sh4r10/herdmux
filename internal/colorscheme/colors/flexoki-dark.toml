@@ -1,0 +1,19 @@
+# flexoki-dark: a herdmux colorscheme, hand-mapped from the theme's official palette.
+# source: https://github.com/kepano/flexoki (README.md: base, 400 and 600 accents)
+[colors]
+pane_bg               = "#100f0f"
+bg                    = "#1c1b1a"
+bg_raised             = "#403e3c"
+bg_overlay            = "#282726"
+fg                    = "#cecdc3"
+fg_muted              = "#878580"
+fg_on_attention       = "#100f0f"
+border                = "#403e3c"
+border_active         = "#ce5d97"
+accent                = "#ce5d97"
+state_working         = "#d0a215"
+state_needs_input     = "#d14d41"
+state_done            = "#879a39"
+state_unknown         = "#878580"
+attention_needs_input = "#d14d41"
+attention_done        = "#879a39"

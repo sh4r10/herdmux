@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+# herdmux-dev opencode shim: loads the herdmux plugin for this launch only,
+# via OPENCODE_CONFIG_DIR, then execs the real opencode found further down
+# PATH. ~/.config/opencode is never written.
+#
+# OPENCODE_CONFIG_DIR adds a dir (loaded last) next to ~/.config/opencode: its
+# plugins/*.js are auto-loaded and its opencode.json is merged. opencode
+# writes node_modules/, package.json etc. into it, so it lives in the
+# gitignored .dev/. Side effect: opencode's global AGENTS.md lookup moves to
+# this dir.
+set -euo pipefail
+shims=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+root=$(cd "$shims/../.." && pwd)
+
+real=
+IFS=: read -ra dirs <<<"$PATH"
+for d in "${dirs[@]}"; do
+  [ -n "$d" ] && [ "$(cd "$d" 2>/dev/null && pwd)" != "$shims" ] || continue
+  if [ -x "$d/opencode" ] && [ ! -d "$d/opencode" ]; then real=$d/opencode; break; fi
+done
+[ -n "$real" ] || { echo "opencode shim: no real opencode on PATH" >&2; exit 127; }
+
+cfg=$root/.dev/opencode
+mkdir -p "$cfg/plugins"
+cp "$root/internal/integrations/opencode/herdmux-agent-state.js" "$cfg/plugins/herdmux-agent-state.js"
+# The dev-only mcp.herdmux (rewritten every launch; opencode merges it).
+cp "$root/dev/opencode/opencode.json" "$cfg/opencode.json"
+
+for v in $(compgen -e); do
+  case $v in HERDR_*) unset "$v" ;; esac
+done
+export OPENCODE_CONFIG_DIR=$cfg
+exec "$real" "$@"

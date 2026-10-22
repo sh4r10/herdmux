@@ -1,0 +1,19 @@
+# kanagawa-wave: a herdmux colorscheme, hand-mapped from the theme's official palette.
+# source: https://github.com/rebelot/kanagawa.nvim (lua/kanagawa/colors.lua)
+[colors]
+pane_bg               = "#1f1f28"
+bg                    = "#16161d"
+bg_raised             = "#2d4f67"
+bg_overlay            = "#2a2a37"
+fg                    = "#dcd7ba"
+fg_muted              = "#727169"
+fg_on_attention       = "#16161d"
+border                = "#54546d"
+border_active         = "#7e9cd8"
+accent                = "#957fb8"
+state_working         = "#e6c384"
+state_needs_input     = "#e82424"
+state_done            = "#98bb6c"
+state_unknown         = "#727169"
+attention_needs_input = "#c34043"
+attention_done        = "#76946a"

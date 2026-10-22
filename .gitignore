@@ -1,0 +1,12 @@
+# go build ./cmd/herdmux, make build
+/herdmux
+/bin/
+*.test
+*.out
+# make dev: the built binary and the dev HERDMUX_CONFIG_DIR
+/.dev/
+/.claude/
+# Local planning notes and tool-manager files; never published.
+/.scratch/
+manifest.json
+.mcp.json

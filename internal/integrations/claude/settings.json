@@ -1,0 +1,32 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {"hooks": [{"type": "command", "command": "herdmux hook claude"}]}
+    ],
+    "UserPromptSubmit": [
+      {"hooks": [{"type": "command", "command": "herdmux hook claude"}]}
+    ],
+    "PreToolUse": [
+      {"hooks": [{"type": "command", "command": "herdmux hook claude"}]}
+    ],
+    "PostToolUse": [
+      {"hooks": [{"type": "command", "command": "herdmux hook claude"}]}
+    ],
+    "PermissionRequest": [
+      {"hooks": [{"type": "command", "command": "herdmux hook claude"}]}
+    ],
+    "Notification": [
+      {"matcher": "permission_prompt|elicitation_dialog|elicitation_url_dialog",
+       "hooks": [{"type": "command", "command": "herdmux hook claude"}]}
+    ],
+    "Stop": [
+      {"hooks": [{"type": "command", "command": "herdmux hook claude"}]}
+    ],
+    "StopFailure": [
+      {"hooks": [{"type": "command", "command": "herdmux hook claude"}]}
+    ],
+    "SessionEnd": [
+      {"hooks": [{"type": "command", "command": "herdmux hook claude"}]}
+    ]
+  }
+}

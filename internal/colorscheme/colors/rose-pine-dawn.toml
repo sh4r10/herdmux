@@ -1,0 +1,19 @@
+# rose-pine-dawn: a herdmux colorscheme, hand-mapped from the theme's official palette.
+# source: https://github.com/rose-pine/neovim (lua/rose-pine/palette.lua, dawn)
+[colors]
+pane_bg               = "#faf4ed"
+bg                    = "#fffaf3"
+bg_raised             = "#dfdad9"
+bg_overlay            = "#f2e9e1"
+fg                    = "#464261"
+fg_muted              = "#9893a5"
+fg_on_attention       = "#faf4ed"
+border                = "#dfdad9"
+border_active         = "#907aa9"
+accent                = "#d7827e"
+state_working         = "#ea9d34"
+state_needs_input     = "#b4637a"
+state_done            = "#56949f"
+state_unknown         = "#9893a5"
+attention_needs_input = "#b4637a"
+attention_done        = "#56949f"

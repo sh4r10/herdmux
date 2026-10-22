@@ -1,0 +1,19 @@
+# catppuccin-mocha: a herdmux colorscheme, hand-mapped from the theme's official palette.
+# source: https://github.com/catppuccin/palette (palette.json, mocha)
+[colors]
+pane_bg               = "#1e1e2e"
+bg                    = "#181825"
+bg_raised             = "#45475a"
+bg_overlay            = "#313244"
+fg                    = "#cdd6f4"
+fg_muted              = "#7f849c"
+fg_on_attention       = "#11111b"
+border                = "#313244"
+border_active         = "#b4befe"
+accent                = "#cba6f7"
+state_working         = "#f9e2af"
+state_needs_input     = "#f38ba8"
+state_done            = "#a6e3a1"
+state_unknown         = "#7f849c"
+attention_needs_input = "#f38ba8"
+attention_done        = "#a6e3a1"

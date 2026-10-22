@@ -1,0 +1,19 @@
+# onedark-warmer: a herdmux colorscheme, hand-mapped from the theme's official palette.
+# source: https://github.com/navarasu/onedark.nvim (lua/onedark/palette.lua, warmer)
+[colors]
+pane_bg               = "#232326"
+bg                    = "#1b1c1e"
+bg_raised             = "#35363b"
+bg_overlay            = "#2c2d31"
+fg                    = "#a7aab0"
+fg_muted              = "#818387"
+fg_on_attention       = "#101012"
+border                = "#37383d"
+border_active         = "#57a5e5"
+accent                = "#bb70d2"
+state_working         = "#dbb671"
+state_needs_input     = "#de5d68"
+state_done            = "#8fb573"
+state_unknown         = "#818387"
+attention_needs_input = "#de5d68"
+attention_done        = "#8fb573"

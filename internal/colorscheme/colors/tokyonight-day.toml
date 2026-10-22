@@ -1,0 +1,19 @@
+# tokyonight-day: a herdmux colorscheme, hand-mapped from the theme's official palette.
+# source: https://github.com/folke/tokyonight.nvim (extras/lua/tokyonight_day.lua)
+[colors]
+pane_bg               = "#e1e2e7"
+bg                    = "#d0d5e3"
+bg_raised             = "#b7c1e3"
+bg_overlay            = "#c4c8da"
+fg                    = "#3760bf"
+fg_muted              = "#848cb5"
+fg_on_attention       = "#e1e2e7"
+border                = "#a8aecb"
+border_active         = "#2e7de9"
+accent                = "#2e7de9"
+state_working         = "#8c6c3e"
+state_needs_input     = "#f52a65"
+state_done            = "#587539"
+state_unknown         = "#848cb5"
+attention_needs_input = "#f52a65"
+attention_done        = "#587539"
