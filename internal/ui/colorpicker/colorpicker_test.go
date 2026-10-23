@@ -219,6 +219,9 @@ func TestFilterKeepAndClear(t *testing.T) {
 	if f.applied[len(f.applied)-1] != "catppuccin-mocha" {
 		t.Errorf("the filtered highlight wasn't applied: %v", f.applied)
 	}
+	if m, _ = press(m, "ctrl+n", "ctrl+p"); m.Selected() != "catppuccin-mocha" {
+		t.Errorf("ctrl+n/ctrl+p while filtering: %q", m.Selected())
+	}
 	m, _ = press(m, "down") // arrows move while typing
 	if m.Selected() != "catppuccin-macchiato" {
 		t.Errorf("down while typing: %q", m.Selected())

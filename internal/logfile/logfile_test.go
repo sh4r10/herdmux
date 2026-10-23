@@ -16,7 +16,7 @@ func TestPathAndPrintf(t *testing.T) {
 	}{
 		{map[string]string{"HOME": home}, filepath.Join(home, ".local/state/herdmux/log")},
 		{map[string]string{"HOME": home, "XDG_STATE_HOME": "relative"}, filepath.Join(home, ".local/state/herdmux/log")},
-		{map[string]string{"HOME": home, "XDG_STATE_HOME": state}, filepath.Join(state, "github.com/sh4r10/herdmux/log")},
+		{map[string]string{"HOME": home, "XDG_STATE_HOME": state}, filepath.Join(state, "herdmux/log")},
 	}
 	for _, c := range cases {
 		getenv := func(k string) string { return c.vars[k] }

@@ -305,15 +305,15 @@ func (m Model) key(msg tea.KeyMsg) (Model, tea.Cmd) {
 	switch k {
 	case "q", "esc", "ctrl+c":
 		return m.close()
-	case "j", "down":
+	case "j", "down", "ctrl+n":
 		m.cur = min(len(m.rows)-1, m.cur+1)
-	case "k", "up":
+	case "k", "up", "ctrl+p":
 		m.cur = max(0, m.cur-1)
 	case "g":
 		m.pendingG = true
 	case "G":
 		m.cur = len(m.rows) - 1
-	case "enter":
+	case "enter", "ctrl+y":
 		if w, ok := m.sel(); ok {
 			m.result.Jump = w.ID
 			return m.close()
@@ -346,15 +346,15 @@ func (m Model) key(msg tea.KeyMsg) (Model, tea.Cmd) {
 // puts it back and closes.
 func (m Model) grabKey(k string) (Model, tea.Cmd) {
 	switch k {
-	case "j", "down":
+	case "j", "down", "ctrl+n":
 		if m.cur < len(m.rows)-1 {
 			m.swap(m.grab, m.rows[m.cur+1].ID)
 		}
-	case "k", "up":
+	case "k", "up", "ctrl+p":
 		if m.cur > 0 {
 			m.swap(m.grab, m.rows[m.cur-1].ID)
 		}
-	case " ", "enter":
+	case " ", "enter", "ctrl+y":
 		if !slices.Equal(m.ids(), m.grabStart) {
 			m.undos = append(m.undos, undo{order: m.grabStart})
 		}
@@ -380,7 +380,7 @@ func (m Model) renameKey(msg tea.KeyMsg) (Model, tea.Cmd) {
 		m.mode, m.msg = modeList, ""
 	case tea.KeyCtrlC:
 		return m.close()
-	case tea.KeyEnter:
+	case tea.KeyEnter, tea.KeyCtrlY:
 		name := string(m.edit)
 		if strings.TrimSpace(name) == "" {
 			m.say(msgErr, "name can't be empty")

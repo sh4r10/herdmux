@@ -41,7 +41,7 @@ func Golden(t *testing.T, update bool, name, got string) {
 }
 
 // Key is the tea.KeyMsg bubbletea delivers for k, named as KeyMsg.String()
-// names it: "enter", "esc", "tab", "up", "down", "backspace", "ctrl+c",
+// names it: "enter", "esc", "tab", "up", "down", "backspace", "ctrl+c", "ctrl+n", "ctrl+p", "ctrl+y",
 // " " (or "space"), or printable text ("j", "/").
 func Key(k string) tea.KeyMsg {
 	switch k {
@@ -61,6 +61,12 @@ func Key(k string) tea.KeyMsg {
 		return tea.KeyMsg{Type: tea.KeySpace, Runes: []rune{' '}}
 	case "ctrl+c":
 		return tea.KeyMsg{Type: tea.KeyCtrlC}
+	case "ctrl+n":
+		return tea.KeyMsg{Type: tea.KeyCtrlN}
+	case "ctrl+p":
+		return tea.KeyMsg{Type: tea.KeyCtrlP}
+	case "ctrl+y":
+		return tea.KeyMsg{Type: tea.KeyCtrlY}
 	}
 	return tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune(k)}
 }

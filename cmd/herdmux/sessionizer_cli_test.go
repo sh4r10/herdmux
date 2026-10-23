@@ -32,7 +32,7 @@ func TestSessionizerConfigErrorSmoke(t *testing.T) {
 		return strings.Contains(c.Output(), `config.toml: [sessionizer] roots: "projects" is not an absolute`)
 	})
 	time.Sleep(150 * time.Millisecond) // bubbletea's first frame is up; keys now reach it
-	for _, k := range []string{"/", "d", "e", "m", "o", "Enter", "Enter"} {
+	for _, k := range []string{"d", "e", "m", "o", "Enter"} {
 		key(s, c, k)
 	}
 	s.Eventually(5*time.Second, "the client on the new session", func() bool {

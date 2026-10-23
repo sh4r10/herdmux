@@ -275,7 +275,7 @@ func TestUndoDropsAndRenames(t *testing.T) {
 	}
 	m, _ = press(m, "g", "g", "r")
 	m, _ = pressMsg(m, tea.KeyMsg{Type: tea.KeyCtrlU})
-	m, _ = press(m, "s", "h", "enter")
+	m, _ = press(m, "s", "h", "ctrl+y") // Ctrl-Y confirms like Enter
 	if m.Rows()[0].Name != "sh" || !slices.Equal(f.renames, []string{"@1 sh"}) {
 		t.Fatalf("rename: %v", f.renames)
 	}

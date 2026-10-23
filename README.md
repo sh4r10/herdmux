@@ -6,6 +6,8 @@ herdmux is a single Go binary. It never stays running: tmux key bindings, tmux h
 
 ![The agent picker: every agent across sessions on the left, a live preview of the selected one on the right](docs/images/picker.png)
 
+![The sessionizer: fuzzy-filter open sessions and project directories, with the matched letters highlighted, the full path and a live preview of the selected session](docs/images/sessionizer.png)
+
 ![Agent states in the window tabs: working (yellow), needs input (red fill), done (green fill), done and already seen (plain)](docs/images/status-bar.png)
 
 ## Features
@@ -32,7 +34,8 @@ herdmux is a single Go binary. It never stays running: tmux key bindings, tmux h
 - **Agent picker** (`prefix a`): every agent with its session, window, state and age, plus a live preview of the selected pane. Filter with `/`, switch between all sessions and this session with Tab, sort by place or Attention first with `s`, launch a new agent with `n`, stop one with `x`, and jump with Enter.
 - **Window organiser** (`prefix r`): reorder the session's windows (space grabs a window and j/k carry it), rename (`r`), kill (`x`), and undo moves and renames (`u`), with a live preview.
 - **Launch prompt** (`prefix o`): start an agent from the menu in a new window in the current pane's directory, and switch to it.
-- **Sessionizer** (`prefix g`): switch to any open session, or pick a project directory under configured roots to create or switch to its session.
+- **Sessionizer** (`prefix g`): switch to any open session, or pick a project directory under configured roots to create or switch to its session. It opens straight into a fuzzy filter (matches highlighted, best first), with the full path and a live preview or directory listing on the right.
+- In every popup, `C-n`/`C-p` move like j/k (also while typing a filter) and `C-y` acts as Enter.
 - **Colorscheme picker** (no default key; bind one, or run `herdmux colorscheme`): previews each scheme live on the whole tmux UI. Enter saves it and Esc reverts.
 
 **Colorschemes**

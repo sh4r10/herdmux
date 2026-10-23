@@ -196,18 +196,12 @@ func tmuxKey(k string) string { return tmux.Literal(k) }
 // binding returns the bind-key line for a key ("" if unbound), with its note
 // (-N) put back, so it can be sourced to restore it later.
 func binding(c *tmux.Client, s Spec) (string, error) {
-	line, err := c.Run("list-keys", "-T", s.Table, tmuxKey(s.Key))
-	if err != nil || !strings.HasPrefix(line, "bind-key ") {
+	line, err := c.KeyBinding(s.Table, s.Key)
+	if err != nil || line == "" {
 		return "", err
 	}
-	line, _, _ = strings.Cut(line, "\n")
-	if n, err := c.Run("list-keys", "-N", "-T", s.Table, tmuxKey(s.Key)); err == nil {
-		// "<key> <note>"
-		if _, note, ok := strings.Cut(strings.TrimSpace(n), " "); ok {
-			if note = strings.TrimSpace(note); note != "" && !strings.Contains(note, "'") {
-				line = "bind-key -N '" + note + "'" + strings.TrimPrefix(line, "bind-key")
-			}
-		}
+	if note, err := c.KeyNote(s.Table, s.Key); err == nil && note != "" && !strings.Contains(note, "'") {
+		line = "bind-key -N '" + note + "'" + strings.TrimPrefix(line, "bind-key")
 	}
 	return line, nil
 }

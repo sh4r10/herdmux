@@ -13,8 +13,8 @@ import (
 // End-to-end tests of config.toml, [keys] and launch.
 
 func prefixKey(s *tmuxtest.Server, key string) string {
-	out, _ := s.TmuxErr("list-keys", "-T", "prefix", key)
-	return out
+	out, _ := s.Client.KeyBinding("prefix", key)
+	return strings.Join(strings.Fields(out), " ")
 }
 
 // fakeAgents is a config.toml whose agents only touch a marker file.
@@ -53,7 +53,7 @@ func TestInitBindsKeys(t *testing.T) {
 	if got := prefixKey(s, "R"); !strings.Contains(got, "herdmux organiser") {
 		t.Errorf("prefix R: %q", got)
 	}
-	if got, _ := s.TmuxErr("list-keys", "-T", "root", "M-c"); !strings.Contains(got, "herdmux colorscheme") {
+	if got, _ := s.Client.KeyBinding("root", "M-c"); !strings.Contains(got, "herdmux colorscheme") {
 		t.Errorf("root M-c: %q", got)
 	}
 }

@@ -1,6 +1,8 @@
 package attention
 
 import (
+	"github.com/charmbracelet/x/ansi"
+
 	"slices"
 	"strings"
 	"testing"
@@ -120,7 +122,7 @@ func TestBellRingsFocusedClientOnly(t *testing.T) {
 	waitBELs(t, s, focused, 1)
 	waitBELs(t, s, idle, 0)
 	s.Eventually(2*time.Second, "the message", func() bool {
-		return strings.Contains(focused.Output(), style.IconDone+" other")
+		return strings.Contains(ansi.Strip(focused.Output()), style.IconDone+" other")
 	})
 	if strings.Contains(idle.Output(), style.IconDone) {
 		t.Fatal("the unfocused client got the message")

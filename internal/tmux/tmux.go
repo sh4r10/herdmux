@@ -21,6 +21,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"slices"
 	"strings"
 	"testing"
 )
@@ -181,3 +182,38 @@ func Literal(s string) string {
 // doubles "#", so "#(cmd)" can't run a shell command and "#{...}" stays as
 // typed, then applies Literal.
 func FormatLiteral(s string) string { return Literal(strings.ReplaceAll(s, "#", "##")) }
+
+// KeyBinding is the `bind-key` line bound to key in table ("" when the key
+// is unbound), found in the whole table's listing: tmux 3.7 prints nothing
+// for `list-keys -T <table> <key>`. The key is compared as tmux prints it,
+// without the backslash it puts before ; " and '.
+func (c *Client) KeyBinding(table, key string) (string, error) {
+	out, err := c.Run("list-keys", "-T", table)
+	if err != nil {
+		return "", err
+	}
+	key = strings.TrimPrefix(key, `\`)
+	for _, l := range Lines(out) {
+		f := strings.Fields(l)
+		if i := slices.Index(f, "-T"); i >= 0 && i+2 < len(f) && f[i+1] == table && strings.TrimPrefix(f[i+2], `\`) == key {
+			return l, nil
+		}
+	}
+	return "", nil
+}
+
+// KeyNote is the -N note of key in table ("" when it has none), from the
+// table's `list-keys -N` listing (see KeyBinding).
+func (c *Client) KeyNote(table, key string) (string, error) {
+	out, err := c.Run("list-keys", "-N", "-P", "", "-T", table)
+	if err != nil {
+		return "", err
+	}
+	key = strings.TrimPrefix(key, `\`)
+	for _, l := range Lines(out) {
+		if k, note, ok := strings.Cut(strings.TrimSpace(l), " "); ok && strings.TrimPrefix(k, `\`) == key {
+			return strings.TrimSpace(note), nil
+		}
+	}
+	return "", nil
+}

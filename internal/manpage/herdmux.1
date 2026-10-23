@@ -375,6 +375,8 @@ Changes apply at the next
 .B write_config
 tool.
 .SS Keys inside the popups
+In every popup, Ctrl-N and Ctrl-P move like j/k (also while typing a
+filter) and Ctrl-Y does what Enter does.
 .TP
 Agent picker
 j/k or the arrows move, Enter jumps to the agent, / filters (by agent, place
@@ -394,9 +396,14 @@ Launch prompt
 Each agent's key launches it; q or Esc closes.
 .TP
 Sessionizer
-j/k or the arrows move, Enter switches (see
+It opens typing into the filter: letters fuzzy-filter the list by name (the
+matched letters are highlighted, best matches first), Ctrl-N/Ctrl-P or the
+arrows move, Enter switches (see
 .BR SESSIONIZER ),
-/ filters by name, q closes, and Esc clears a kept filter or closes.
+and Esc clears the filter or, when it is empty, closes.
+The right side shows the selected entry's full path and, for a session, a
+live preview of its active pane, or, for a directory, the session Enter
+would switch to or create and the directory's contents.
 .TP
 Colorscheme picker
 j/k or the arrows move and preview, g/Home and G/End go to the first and last

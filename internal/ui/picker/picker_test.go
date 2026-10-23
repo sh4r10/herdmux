@@ -183,6 +183,9 @@ func TestFilter(t *testing.T) {
 	if got := panes(m); got != "%4 %1" { // agent name
 		t.Errorf("filter cl: %s", got)
 	}
+	if m, _ = press(t, m, "ctrl+n"); m.Cursor() != 1 { // moves while typing
+		t.Errorf("ctrl+n while filtering: cursor %d", m.Cursor())
+	}
 	m, _ = press(t, m, "backspace", "backspace", "a", "p", "i", ":")
 	if got := panes(m); got != "%1 %2" { // place
 		t.Errorf("filter api: %s", got)

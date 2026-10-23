@@ -144,7 +144,7 @@ func TestWriteConfig(t *testing.T) {
 	if out := mustCall(t, cs, WriteConfig, map[string]any{"text": moved}); !strings.Contains(out, "rebound") {
 		t.Errorf("write_config = %q", out)
 	}
-	if got := s.Tmux("list-keys", "-T", "prefix", "p"); !strings.Contains(got, "herdmux picker") {
+	if got, _ := s.Client.KeyBinding("prefix", "p"); !strings.Contains(got, "herdmux picker") {
 		t.Errorf("prefix p = %q, want the picker", got)
 	}
 	if b, _ := os.ReadFile(path); string(b) != moved {
@@ -285,7 +285,7 @@ func TestOutsideTmux(t *testing.T) {
 		t.Errorf("list outside tmux: mine %+v, flexoki-dark %+v", got["mine"], got["flexoki-dark"])
 	}
 	mustCall(t, cs, DeleteColorscheme, map[string]any{"name": "mine"})
-	if got := s.Tmux("list-keys", "-T", "prefix", "p"); strings.Contains(got, "herdmux") {
+	if got, _ := s.Client.KeyBinding("prefix", "p"); strings.Contains(got, "herdmux") {
 		t.Errorf("outside tmux, the server was rebound: %q", got)
 	}
 }

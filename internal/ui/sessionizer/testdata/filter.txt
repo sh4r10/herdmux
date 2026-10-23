@@ -1,14 +1,14 @@
 ╭─ sessions ───────────────────────────────────────────────────────────────────╮
-│ > herd   2 sessions, 2 dirs                                                  │
+│ > hmx█   1/4                                                                 │
 │                                                                              │
-│ ▌○ 12.34-herdmux                   │                                         │
+│ ▌○ 12.34-herdmux                   │ /p/12.34-herdmux                        │
+│                                    │                                         │
+│                                    │ ⏎ creates session herdmux               │
 │                                    │                                         │
 │                                    │                                         │
 │                                    │                                         │
 │                                    │                                         │
 │                                    │                                         │
 │                                    │                                         │
-│                                    │                                         │
-│                                    │                                         │
-│ j/k move · ⏎ switch/launch · / filter · q close                              │
+│ type to filter · C-n/C-p move · ⏎ switch/launch · esc clear/close            │
 ╰──────────────────────────────────────────────────────────────────────────────╯

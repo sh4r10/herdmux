@@ -290,11 +290,11 @@ func (m Model) key(msg tea.KeyMsg) (Model, tea.Cmd) {
 			return m, nil
 		}
 		return m.close()
-	case "j", "down":
+	case "j", "down", "ctrl+n":
 		m.cur = min(len(m.rows)-1, m.cur+1)
-	case "k", "up":
+	case "k", "up", "ctrl+p":
 		m.cur = max(0, m.cur-1)
-	case "enter":
+	case "enter", "ctrl+y":
 		if a, ok := m.sel(); ok {
 			m.result.Jump = &a
 			return m.close()

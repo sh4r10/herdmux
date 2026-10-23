@@ -10,7 +10,8 @@ import (
 
 // Filter is the popups' `/` filter: `/` starts
 // typing (Start), printable keys and space append, backspace deletes, ⏎
-// keeps the filter and stops typing, Esc clears it. While not typing, a
+// (or Ctrl-Y) keeps the filter and stops typing, Esc clears it. Ctrl-N/Ctrl-P
+// are not used, so the popup moves the cursor on them while typing. While not typing, a
 // kept filter stays applied; the popup decides what Esc does then (the
 // pickers clear a kept filter on the first Esc, then close).
 type Filter struct {
@@ -32,7 +33,7 @@ func (f *Filter) Key(k tea.KeyMsg) (used, changed bool) {
 		return false, false
 	}
 	switch k.Type {
-	case tea.KeyEnter:
+	case tea.KeyEnter, tea.KeyCtrlY:
 		f.Typing = false
 		return true, false
 	case tea.KeyEsc:

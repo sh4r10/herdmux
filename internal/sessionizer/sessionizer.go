@@ -20,9 +20,10 @@ type Entry struct {
 	Path    string // the session's #{session_path}, or the full directory path
 	Session string // session id ("$N") for a session entry, empty for dirs
 	Agents  int    // agent panes in the session (0 for dirs and agent-less sessions)
+	Pane    string // the session's active pane ("%N"), for the preview; empty for dirs
 }
 
-var sessionFormat = tmux.Fields("#{session_id}", "#{session_path}", "#{session_name}")
+var sessionFormat = tmux.Fields("#{session_id}", "#{session_path}", "#{pane_id}", "#{session_name}")
 
 // List merges open sessions and found directories, ordered for the picker:
 // sessions first, then directories. Within each group, ordered by name.
@@ -43,16 +44,17 @@ func List(c *tmux.Client, roots []string, depth int) ([]Entry, error) {
 	}
 	for _, line := range tmux.Lines(out) {
 		// session_name goes last, so a tab in it can't shift the fields.
-		f := strings.SplitN(line, tmux.FieldSep, 3)
-		if len(f) != 3 {
+		f := strings.SplitN(line, tmux.FieldSep, 4)
+		if len(f) != 4 {
 			continue
 		}
 		entries = append(entries, Entry{
 			Type:    "session",
-			Name:    f[2],
+			Name:    f[3],
 			Path:    f[1],
 			Session: f[0],
-			Agents:  agents[f[2]],
+			Agents:  agents[f[3]],
+			Pane:    f[2],
 		})
 	}
 

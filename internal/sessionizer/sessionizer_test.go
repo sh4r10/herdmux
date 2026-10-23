@@ -204,8 +204,8 @@ func TestListIncludesSessionsWithoutAgents(t *testing.T) {
 		t.Fatal(err)
 	}
 	want := []Entry{
-		{Type: "session", Name: "bare", Path: dir, Session: s.Display("=bare:", "#{session_id};")},
-		{Type: "session", Name: "main", Path: s.Display("=main:", "#{session_path}"), Session: s.Display("=main:", "#{session_id};"), Agents: 2},
+		{Type: "session", Name: "bare", Path: dir, Session: s.Display("=bare:", "#{session_id};"), Pane: s.Display("=bare:", "#{pane_id}")},
+		{Type: "session", Name: "main", Path: s.Display("=main:", "#{session_path}"), Session: s.Display("=main:", "#{session_id};"), Agents: 2, Pane: s.Display("=main:", "#{pane_id}")},
 		{Type: "dir", Name: filepath.Base(root), Path: root},
 	}
 	if !slices.Equal(got, want) {

@@ -24,11 +24,14 @@ func styles() *style.Styles { return style.New(style.PaletteOf(colorscheme.Defau
 type fake struct{ entries []sessionizer.Entry }
 
 func (f fake) Entries() ([]sessionizer.Entry, error) { return f.entries, nil }
+func (f fake) Capture(pane string, n int) []string {
+	return []string{"$ echo hi from " + pane, "hi from " + pane}
+}
 
 func entries() []sessionizer.Entry {
 	return []sessionizer.Entry{
-		{Type: "session", Name: "api", Path: "/p/api", Session: "$1", Agents: 2},
-		{Type: "session", Name: "main", Path: "/p", Session: "$0"},
+		{Type: "session", Name: "api", Path: "/p/api", Session: "$1", Agents: 2, Pane: "%3"},
+		{Type: "session", Name: "main", Path: "/p", Session: "$0", Pane: "%0"},
 		{Type: "dir", Name: "12.34-herdmux", Path: "/p/12.34-herdmux"},
 		{Type: "dir", Name: "web", Path: "/p/web"},
 	}
@@ -73,7 +76,7 @@ func TestConfigError(t *testing.T) {
 	if !strings.Contains(v, "\x1b[1;"+uitest.FgSGR(st, "attention_needs_input")+"config.toml: ") {
 		t.Error("the config error is not drawn in the error colour")
 	}
-	if m = press(m, "j", "enter"); m.Result().Switch == nil || m.Result().Switch.Name != "main" {
+	if m = press(m, "ctrl+n", "enter"); m.Result().Switch == nil || m.Result().Switch.Name != "main" {
 		t.Errorf("result %+v, want main", m.Result().Switch)
 	}
 }
@@ -87,11 +90,53 @@ func TestNoConfigErrorNoLine(t *testing.T) {
 
 func TestFilterAndEnter(t *testing.T) {
 	t.Parallel()
-	m := press(newModel(Options{}), "/", "h", "e", "r", "d", "enter")
+	// The popup opens typing: no / needed, and "hmx" fuzzy-matches herdmux
+	// (the matched runes are highlighted in accent).
+	st := styles()
+	m := press(newModel(Options{}), "h", "m", "x")
 	uitest.Golden(t, *update, "filter", m.View())
+	if rows := m.Rows(); len(rows) != 1 || rows[0].Name != "12.34-herdmux" {
+		t.Fatalf("rows %+v", rows)
+	}
+	if v := m.View(); !strings.Contains(v, uitest.FgSGR(st, "accent")) || !strings.Contains(ansi.Strip(v), "/p/12.34-herdmux") {
+		t.Errorf("no accent highlight or no full path in the view:\n%s", ansi.Strip(v))
+	}
 	m = press(m, "enter")
 	if r := m.Result().Switch; r == nil || r.Path != "/p/12.34-herdmux" {
 		t.Errorf("result %+v", r)
+	}
+}
+
+// Ctrl-N/Ctrl-P move while typing, Ctrl-Y picks like Enter, and the first
+// Esc clears the filter (the second closes).
+func TestCtrlKeys(t *testing.T) {
+	t.Parallel()
+	m := press(newModel(Options{}), "ctrl+n", "ctrl+n", "ctrl+p")
+	if m.Cursor() != 1 {
+		t.Fatalf("cursor %d, want 1", m.Cursor())
+	}
+	m = press(m, "a", "p", "esc")
+	if m.filter.Text != "" || len(m.Rows()) != 4 {
+		t.Fatalf("esc did not clear the filter: %q, %d rows", m.filter.Text, len(m.Rows()))
+	}
+	if m = press(m, "ctrl+y"); m.Result().Switch == nil || m.Result().Switch.Name != "api" {
+		t.Errorf("result %+v, want api", m.Result().Switch)
+	}
+	if m = press(newModel(Options{}), "esc"); !m.quit {
+		t.Error("esc with an empty filter did not close")
+	}
+}
+
+// Best matches first: typing "web" ranks the dir web above anything that
+// merely contains the letters, and a session preview shows on the right.
+func TestRankingAndPreview(t *testing.T) {
+	t.Parallel()
+	m := press(newModel(Options{}), "ma")
+	if rows := m.Rows(); len(rows) == 0 || rows[0].Name != "main" {
+		t.Fatalf("rows %+v, want main first", rows)
+	}
+	if v := ansi.Strip(m.View()); !strings.Contains(v, "hi from %0") || !strings.Contains(v, "⏎ switches to it") {
+		t.Errorf("no preview of main:\n%s", v)
 	}
 }
 
@@ -107,3 +152,4 @@ func TestLoadError(t *testing.T) {
 type errBackend struct{}
 
 func (errBackend) Entries() ([]sessionizer.Entry, error) { return nil, errors.New("boom") }
+func (errBackend) Capture(string, int) []string          { return nil }

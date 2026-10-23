@@ -8,8 +8,13 @@ import (
 )
 
 func listKey(s *tmuxtest.Server, table, key string) string {
-	out, _ := s.TmuxErr("list-keys", "-T", table, key)
-	return out
+	out, _ := s.Client.KeyBinding(table, key)
+	return strings.Join(strings.Fields(out), " ")
+}
+
+func note(s *tmuxtest.Server, table, key string) string {
+	n, _ := s.Client.KeyNote(table, key)
+	return n
 }
 
 func herdmuxKeys(s *tmuxtest.Server, table string) string {
@@ -49,7 +54,7 @@ func TestBindDefaults(t *testing.T) {
 	if got := herdmuxKeys(s, "root"); got != "" {
 		t.Errorf("root table has herdmux keys:\n%s", got)
 	}
-	if got := s.Tmux("list-keys", "-N", "-T", "prefix", "a"); !strings.Contains(got, "herdmux: open the agent picker") {
+	if got := note(s, "prefix", "a"); !strings.Contains(got, "herdmux: open the agent picker") {
 		t.Errorf("note %q", got)
 	}
 }
@@ -66,7 +71,7 @@ func TestRebindRestoresTmuxDefault(t *testing.T) {
 	if got := listKey(s, "prefix", "r"); got != "bind-key -T prefix r refresh-client" {
 		t.Errorf("prefix r is %q, want tmux's refresh-client back", got)
 	}
-	if got := s.Tmux("list-keys", "-N", "-T", "prefix", "r"); !strings.Contains(got, "Redraw the current client") {
+	if got := note(s, "prefix", "r"); !strings.Contains(got, "Redraw the current client") {
 		t.Errorf("prefix r's note %q", got)
 	}
 	if got := listKey(s, "prefix", "R"); !strings.Contains(got, "herdmux organiser") {

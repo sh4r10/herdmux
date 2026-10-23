@@ -1,6 +1,8 @@
 package main
 
 import (
+	"github.com/charmbracelet/x/ansi"
+
 	"strings"
 	"testing"
 	"time"
@@ -90,7 +92,7 @@ func TestReportAndHookRing(t *testing.T) {
 	pane, pid := sleeperIn(t, s, "api")
 	raise(t, s, pane, pid, state.Done)
 	s.Eventually(2*time.Second, "the bell", func() bool { return bels() == 1 })
-	s.Eventually(2*time.Second, "the message", func() bool { return strings.Contains(c.Output(), style.IconDone+" api") })
+	s.Eventually(2*time.Second, "the message", func() bool { return strings.Contains(ansi.Strip(c.Output()), style.IconDone+" api") })
 
 	raise(t, s, pane, pid, state.Done) // a repeat raise on a flagged agent
 	s.Eventually(2*time.Second, "the second bell", func() bool { return bels() == 2 })
@@ -106,7 +108,7 @@ func TestReportAndHookRing(t *testing.T) {
 	hookInProcess(t, s, cl, clpid, `{"hook_event_name":"PermissionRequest","tool_name":"Bash"}`)
 	s.Eventually(2*time.Second, "the hook's bell", func() bool { return bels() == 3 })
 	s.Eventually(2*time.Second, "the hook's message", func() bool {
-		return strings.Contains(c.Output(), style.IconNeedsInput+" api")
+		return strings.Contains(ansi.Strip(c.Output()), style.IconNeedsInput+" api")
 	})
 	time.Sleep(200 * time.Millisecond)
 	if n := bels(); n != 3 {
@@ -126,7 +128,7 @@ func TestInitBeforeAnySessionBindsKeys(t *testing.T) {
 	if r.Code != 0 || r.Stderr != "" {
 		t.Fatalf("init: code=%d stderr=%q", r.Code, r.Stderr)
 	}
-	if got := s.Tmux("list-keys", "-T", "prefix", "u"); !strings.Contains(got, "herdmux next-attention") {
+	if got, _ := s.Client.KeyBinding("prefix", "u"); !strings.Contains(got, "herdmux next-attention") {
 		t.Fatalf("prefix u: %q (log %q)", got, readFile(t, s.LogPath()))
 	}
 }

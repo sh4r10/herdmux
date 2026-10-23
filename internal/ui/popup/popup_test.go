@@ -53,7 +53,8 @@ func TestShowErrorIsRed(t *testing.T) {
 	// tmux draws the message in the client's status line: red, with # intact.
 	s.Eventually(3*time.Second, "the red message", func() bool {
 		out := c.Output()
-		// The client's TERM has no RGB, so tmux sends #d14d41 as colour 167.
-		return strings.Contains(out, "\x1b[38;5;167m") && strings.Contains(out, "herdmux launch: no agent #1")
+		// tmux <3.7 sends #d14d41 to the RGB-less client as colour 167; 3.7 sends RGB.
+		red := strings.Contains(out, "\x1b[38;5;167m") || strings.Contains(out, "\x1b[38;2;209;77;65m")
+		return red && strings.Contains(out, "herdmux launch: no agent #1")
 	})
 }

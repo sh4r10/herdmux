@@ -310,14 +310,14 @@ func (m Model) key(msg tea.KeyMsg) (Model, tea.Cmd) {
 			return m, nil
 		}
 		return m.close(Result{})
-	case "enter":
+	case "enter", "ctrl+y":
 		if s, ok := m.sel(); ok {
 			return m.close(Result{Save: s.Name})
 		}
 		return m, nil
-	case "j", "down":
+	case "j", "down", "ctrl+n":
 		m.step(m.cur+1, 1)
-	case "k", "up":
+	case "k", "up", "ctrl+p":
 		if m.cur > 0 {
 			m.step(m.cur-1, -1)
 		}
