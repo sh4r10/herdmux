@@ -1,4 +1,4 @@
-module herdmux
+module github.com/sh4r10/herdmux
 
 go 1.27
 
