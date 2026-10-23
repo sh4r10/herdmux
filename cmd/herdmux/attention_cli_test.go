@@ -41,6 +41,12 @@ func TestNextAttentionCrossesSessions(t *testing.T) {
 	ask, askPID := sleeperIn(t, s, "other")
 	raise(t, s, done, donePID, state.Done)
 	raise(t, s, ask, askPID, state.NeedsInput)
+	elsewhere := func(session string) string {
+		return s.Display(session+":", "#{"+attention.OptElsewhereKind+"}|#{"+attention.OptElsewhereSession+"}|#{"+attention.OptElsewhereMore+"}")
+	}
+	if got := elsewhere("main"); got != state.NeedsInput+"|other|" {
+		t.Fatalf("main's indicator after the reports: %q", got)
+	}
 	c := s.Attach("main")
 
 	where := func() string { return c.Format("#{session_name} #{pane_id}") }
@@ -56,6 +62,7 @@ func TestNextAttentionCrossesSessions(t *testing.T) {
 		t.Fatalf("after first jump: %q", got)
 	}
 	s.Eventually(2*time.Second, "the Visit", func() bool { return s.PaneOption(ask, state.OptAttention) == "" })
+	s.Eventually(2*time.Second, "the indicator", func() bool { return elsewhere("other") == state.Done+"|main|" })
 
 	next()
 	if got := where(); got != "main "+done {

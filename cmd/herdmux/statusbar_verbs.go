@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/sh4r10/herdmux/internal/attention"
 	"github.com/sh4r10/herdmux/internal/statusbar"
 	"github.com/sh4r10/herdmux/internal/tmux"
 )
@@ -19,7 +20,8 @@ func initStatusbar(e *env, c *tmux.Client) error {
 // statusbarHook handles the git events of `tmux-hook` (already reconciled):
 //
 //	git-refresh <pane_id>   from the GitHooks: a pane, window or session became active
-//	recheck                 from the recheck loop: every session's active pane
+//	recheck                 from the recheck loop: every session's active pane,
+//	                        and the Attention-elsewhere indicator (agents died)
 //
 // ok is false for any other event.
 func statusbarHook(c *tmux.Client, ev string, args []string) (ok bool, err error) {
@@ -33,7 +35,10 @@ func statusbarHook(c *tmux.Client, ev string, args []string) (ok bool, err error
 		if len(args) != 0 {
 			return true, usagef("recheck takes no arguments")
 		}
-		return true, statusbar.Recheck(c)
+		if err := statusbar.Recheck(c); err != nil {
+			return true, err
+		}
+		return true, attention.Sync(c)
 	}
 	return false, nil
 }

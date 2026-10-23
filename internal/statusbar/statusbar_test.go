@@ -9,6 +9,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/sh4r10/herdmux/internal/attention"
 	"github.com/sh4r10/herdmux/internal/colorscheme"
 	"github.com/sh4r10/herdmux/internal/state"
 	"github.com/sh4r10/herdmux/internal/tmuxtest"
@@ -297,5 +298,38 @@ func TestInitIdempotent(t *testing.T) {
 		if n := strings.Count(out, "git-refresh"); n != 1 {
 			t.Errorf("%s: %d herdmux hooks:\n%s", h, n, out)
 		}
+	}
+}
+
+func TestStatusRightElsewhere(t *testing.T) {
+	t.Parallel()
+	s := server(t)
+	right := func() string { return s.Display(s.Pane, "#{E:status-right}") }
+	before := right()
+	if strings.Contains(before, style.IconNeedsInput) || strings.Contains(before, style.IconDone) {
+		t.Fatalf("indicator shown with nothing elsewhere: %q", before)
+	}
+
+	// As attention.Sync writes them for session main.
+	s.Tmux("set-option", "-t", "main", attention.OptElsewhereKind, state.NeedsInput, ";",
+		"set-option", "-t", "main", attention.OptElsewhereSession, "api", ";",
+		"set-option", "-t", "main", attention.OptElsewhereMore, "2")
+	got := right()
+	if want := "#[fg=#d14d41]" + style.IconNeedsInput + " #[fg=#cecdc3]api#[fg=#878580] +2  "; !strings.HasPrefix(got, want) {
+		t.Fatalf("status-right\n%q\nwant prefix\n%q", got, want)
+	}
+	if !strings.HasSuffix(got, before) {
+		t.Fatalf("dir and git changed: %q", got)
+	}
+
+	s.Tmux("set-option", "-t", "main", attention.OptElsewhereKind, state.Done, ";",
+		"set-option", "-u", "-t", "main", attention.OptElsewhereMore)
+	if got, want := plain(right()), style.IconDone+" api  "; !strings.HasPrefix(got, want) {
+		t.Fatalf("done, no more: %q, want prefix %q", got, want)
+	}
+
+	// A click on status-right jumps to it.
+	if out := s.Tmux("list-keys", "-T", "root"); !strings.Contains(out, MouseKey+" ") || !strings.Contains(out, "herdmux next-attention") {
+		t.Fatalf("%s binding: %q", MouseKey, out)
 	}
 }

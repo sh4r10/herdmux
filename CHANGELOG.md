@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.4.0 — 2026-10-24
+
+- New: the status bar's right side shows Attention in other sessions: the most urgent agent's state icon and its session name, plus `+N` for further waiting agents elsewhere. It updates on every report, Visit and recheck.
+- New: a mouse click on the right side of the status bar runs `next-attention` (`MouseDown1StatusRight`, set by `herdmux init`).
+
 ## 1.3.0 — 2026-10-23
 
 - Changed: the sessionizer opens typing into its filter, which now fuzzy-matches names (matched letters highlighted, best matches first). Esc clears the filter, then closes; `q` is text.

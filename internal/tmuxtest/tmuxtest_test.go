@@ -104,7 +104,7 @@ func TestParallelServersGetDifferentSockets(t *testing.T) {
 func TestHerdmuxRunsAgainstServer(t *testing.T) {
 	t.Parallel()
 	s := tmuxtest.New(t)
-	if r := s.Herdmux("--version"); r.Code != 0 || r.Stdout != "herdmux 1.3.0\n" {
+	if r := s.Herdmux("--version"); r.Code != 0 || r.Stdout != "herdmux 1.4.0\n" {
 		t.Fatalf("--version: %+v", r)
 	}
 	if r := s.Run(tmuxtest.Cmd{Args: []string{"list"}, Outside: true}); r.Code != 2 {
@@ -119,7 +119,7 @@ func TestHerdmuxRunsAgainstServer(t *testing.T) {
 	}
 	// herdmux is on the server's PATH, for hooks and bindings that call it bare.
 	s.Tmux("run-shell", "herdmux --version > "+filepath.Join(s.Home, "v.txt"))
-	if b, _ := os.ReadFile(filepath.Join(s.Home, "v.txt")); string(b) != "herdmux 1.3.0\n" {
+	if b, _ := os.ReadFile(filepath.Join(s.Home, "v.txt")); string(b) != "herdmux 1.4.0\n" {
 		t.Fatalf("herdmux from run-shell: %q", b)
 	}
 }

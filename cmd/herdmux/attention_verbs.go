@@ -46,12 +46,13 @@ func nextAttention(c *tmux.Client, client string) error {
 	}
 	// The pane-focus-in hook makes this a Visit too; clearing here as well
 	// means the flag is gone when the verb returns.
-	return state.Visit(c, a.Window)
+	return visit(c, a.Window)
 }
 
 // ring rings the bell for this run's Attention raises (one bell and one
-// message per run). A failure is logged, never returned: the state report
-// itself succeeded.
+// message per run) and syncs the status bar's Attention-elsewhere
+// indicator. A failure is logged, never returned: the state report itself
+// succeeded.
 func ring(e *env, c *tmux.Client, outcomes ...state.Outcome) {
 	var b attention.Bell
 	for _, o := range outcomes {
@@ -60,4 +61,16 @@ func ring(e *env, c *tmux.Client, outcomes ...state.Outcome) {
 	if err := b.Ring(c); err != nil {
 		_ = logfile.Printf(e.getenv, "bell: %v", err)
 	}
+	if err := attention.Sync(c); err != nil {
+		_ = logfile.Printf(e.getenv, "elsewhere: %v", err)
+	}
+}
+
+// visit is state.Visit followed by a sync of the Attention-elsewhere
+// indicator, which the Visit may have cleared.
+func visit(c *tmux.Client, window string) error {
+	if err := state.Visit(c, window); err != nil {
+		return err
+	}
+	return attention.Sync(c)
 }

@@ -28,6 +28,7 @@ herdmux is a single Go binary. It never stays running: tmux key bindings, tmux h
 
 - Window tabs show one coloured state icon per agent in the window. A tab whose agent needs attention is filled red (`needs-input`) or green (`done`).
 - The left side shows the session name. The right side shows the active pane's directory, its git branch, and a `●` when the working tree has uncommitted changes. Git status refreshes when you switch panes, windows or sessions, and every 3 seconds.
+- When an agent in *another* session has Attention, the right side starts with its state icon and that session's name, plus `+N` when more agents elsewhere are waiting. Clicking the right side jumps there, like `prefix u`.
 
 **Popups** (bubbletea, drawn in the active colorscheme)
 

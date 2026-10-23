@@ -17,6 +17,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/sh4r10/herdmux/internal/config"
 	"github.com/sh4r10/herdmux/internal/git"
 	"github.com/sh4r10/herdmux/internal/tmux"
 )
@@ -48,9 +49,16 @@ var GitHooks = []string{"window-pane-changed", "session-window-changed", "client
 // GitHookCommand is what the git hooks run.
 const GitHookCommand = `run-shell -b "herdmux tmux-hook git-refresh #{pane_id}"`
 
-// Init is this package's part of `herdmux init`: the status formats, the git
-// hooks and the recheck loop, then a first recheck. It is idempotent: the
-// hooks sit in fixed slots and a re-run replaces the recheck loop.
+// MouseKey is the root-table mouse key a click on status-right binds to:
+// `herdmux next-attention`, so a click on the Attention-elsewhere indicator
+// jumps there (tmux leaves this key unbound). It replaces a tmux.conf
+// binding of the same key.
+const MouseKey = "MouseDown1StatusRight"
+
+// Init is this package's part of `herdmux init`: the status formats, the
+// status-right mouse binding, the git hooks and the recheck loop, then a
+// first recheck. It is idempotent: the hooks sit in fixed slots and a re-run
+// replaces the recheck loop.
 func Init(c *tmux.Client, home string) error {
 	return initWith(c, home, RecheckInterval)
 }
@@ -66,6 +74,8 @@ func initWith(c *tmux.Client, home string, interval time.Duration) error {
 		{"set-option", "-gw", "window-status-format", TabFormat(false)},
 		{"set-option", "-gw", "window-status-current-format", TabFormat(true)},
 		{"set-option", "-gw", "window-status-separator", ""},
+		{"bind-key", "-N", "herdmux: jump to the next agent that needs attention", "-T", "root", MouseKey,
+			"run-shell", "-b", config.BindingCommand("next-attention")},
 		{"set-option", "-g", OptRecheck, gen},
 		{"run-shell", "-b", recheckLoop(gen, interval)},
 	}

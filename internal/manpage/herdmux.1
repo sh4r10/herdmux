@@ -46,6 +46,10 @@ colorscheme picker) are drawn in the active colorscheme.
 The status bar shows one coloured state icon per agent in each window tab,
 fills the tab of an agent with Attention, and shows the session name, the
 active pane's directory, its git branch and a dirty marker.
+When an agent in another session has Attention, the right side starts with
+its state icon and that session's name, plus +N for the other agents
+elsewhere; a mouse click on the right side runs
+.BR next\-attention .
 .SH COMMANDS
 Flags may appear anywhere among the arguments, and
 .B \-\-

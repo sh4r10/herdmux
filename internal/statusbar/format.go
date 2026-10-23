@@ -3,6 +3,7 @@ package statusbar
 import (
 	"strings"
 
+	"github.com/sh4r10/herdmux/internal/attention"
 	"github.com/sh4r10/herdmux/internal/colorscheme"
 	"github.com/sh4r10/herdmux/internal/state"
 	"github.com/sh4r10/herdmux/internal/ui/style"
@@ -34,8 +35,8 @@ func icons(colored bool) string {
 	return "#{P:#{?" + opt(state.OptAgent) + "," + pick + ",}}"
 }
 
-// attention is the window's joined Attention values, one per pane, for #{m:}.
-var attention = "#{P:" + opt(state.OptAttention) + " }"
+// attentions is the window's joined Attention values, one per pane, for #{m:}.
+var attentions = "#{P:" + opt(state.OptAttention) + " }"
 
 // TabFormat is window-status-format (current false) or
 // window-status-current-format (current true): ` <icons> #I:#W `, then the
@@ -55,8 +56,8 @@ func TabFormat(current bool) string {
 		return "#[bg=" + ref(slot) + "]#[fg=" + on + "]" + bold + body(false, on)
 	}
 	normal := "#[bg=" + ref(bg) + "]#[fg=" + ref(fg) + "]" + bold + body(true, ref(fg))
-	return "#{?#{m:*" + state.NeedsInput + "*," + attention + "}," + fill("attention_needs_input") +
-		",#{?#{m:*" + state.Done + "*," + attention + "}," + fill("attention_done") +
+	return "#{?#{m:*" + state.NeedsInput + "*," + attentions + "}," + fill("attention_needs_input") +
+		",#{?#{m:*" + state.Done + "*," + attentions + "}," + fill("attention_done") +
 		"," + normal + "}}#[default]"
 }
 
@@ -65,9 +66,23 @@ func StatusLeft() string {
 	return "#[fg=" + ref("accent") + "]#[bold] #S #[default] "
 }
 
-// StatusRight is the active pane's directory basename (~ at home), then its
-// git branch, a dirty ● and the stale marker …. home is embedded literally
-// (tmux formats can't read the environment); init re-runs on every reload.
+// elsewhere is the Attention-elsewhere indicator: the most urgent agent
+// with Attention in another session as `<icon> <session>`, the icon in its
+// Attention colour and the name in fg, then ` +N` in fg_muted for the other
+// agents elsewhere. It reads the session options attention.Sync writes and
+// is empty when they are unset.
+func elsewhere() string {
+	kind, session, more := opt(attention.OptElsewhereKind), opt(attention.OptElsewhereSession), opt(attention.OptElsewhereMore)
+	icon := "#{?#{==:" + kind + "," + state.NeedsInput + "},#[fg=" + ref("attention_needs_input") + "]" + style.IconNeedsInput +
+		",#[fg=" + ref("attention_done") + "]" + style.IconDone + "}"
+	return "#{?" + kind + "," + icon + " #[fg=" + ref("fg") + "]" + session +
+		"#{?" + more + ",#[fg=" + ref("fg_muted") + "] +" + more + ",}  ,}"
+}
+
+// StatusRight is the Attention-elsewhere indicator (elsewhere), then the
+// active pane's directory basename (~ at home), its git branch, a dirty ●
+// and the stale marker …. home is embedded literally (tmux formats can't
+// read the environment); init re-runs on every reload.
 func StatusRight(home string) string {
 	dir := "#{b:pane_current_path}"
 	if home != "" {
@@ -77,7 +92,7 @@ func StatusRight(home string) string {
 	git := "#{?#{||:" + head + "," + stale + "}, #[fg=" + ref("fg") + "]" + head +
 		"#{?" + dirty + ", #[fg=" + ref("state_working") + "]" + DirtyMark + ",}" +
 		"#{?" + stale + ",#[fg=" + ref("fg_muted") + "]" + StaleMark + ",},}"
-	return "#[fg=" + ref("fg_muted") + "]" + dir + git + " #[default]"
+	return elsewhere() + "#[fg=" + ref("fg_muted") + "]" + dir + git + " #[default]"
 }
 
 // DirtyMark follows the branch when anything is uncommitted; StaleMark

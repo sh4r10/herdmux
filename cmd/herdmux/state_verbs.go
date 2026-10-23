@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"text/tabwriter"
 
+	"github.com/sh4r10/herdmux/internal/attention"
 	"github.com/sh4r10/herdmux/internal/state"
 	"github.com/sh4r10/herdmux/internal/tmux"
 )
@@ -109,7 +110,10 @@ func defineInit(fs *flag.FlagSet) func(*env, []string) error {
 		if err := state.Init(c); err != nil {
 			return err
 		}
-		return state.Reconcile(c)
+		if err := state.Reconcile(c); err != nil {
+			return err
+		}
+		return attention.Sync(c)
 	}
 }
 
@@ -127,7 +131,7 @@ func defineTmuxHook(fs *flag.FlagSet) func(*env, []string) error {
 			if len(args) != 2 {
 				return usagef("pane-focus-in wants the window id")
 			}
-			return state.Visit(c, args[1])
+			return visit(c, args[1])
 		default:
 			if ok, err := statusbarHook(c, ev, args[1:]); ok {
 				return err
