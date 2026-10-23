@@ -26,7 +26,7 @@ import (
 	"testing"
 	"time"
 
-	"herdmux/internal/tmux"
+	"github.com/sh4r10/herdmux/internal/tmux"
 )
 
 // Server is one throwaway tmux server.
@@ -286,12 +286,12 @@ func moduleRoot() (string, error) {
 		return "", err
 	}
 	for {
-		if b, err := os.ReadFile(filepath.Join(dir, "go.mod")); err == nil && bytes.HasPrefix(b, []byte("module herdmux\n")) {
+		if b, err := os.ReadFile(filepath.Join(dir, "go.mod")); err == nil && bytes.HasPrefix(b, []byte("module github.com/sh4r10/herdmux\n")) {
 			return dir, nil
 		}
 		parent := filepath.Dir(dir)
 		if parent == dir {
-			return "", errors.New("go.mod for module herdmux not found")
+			return "", errors.New("go.mod for module github.com/sh4r10/herdmux not found")
 		}
 		dir = parent
 	}

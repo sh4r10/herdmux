@@ -10,9 +10,9 @@ import (
 	"strconv"
 	"strings"
 
-	"herdmux/internal/integrations"
-	"herdmux/internal/integrations/claude"
-	"herdmux/internal/mcp"
+	"github.com/sh4r10/herdmux/internal/integrations"
+	"github.com/sh4r10/herdmux/internal/integrations/claude"
+	"github.com/sh4r10/herdmux/internal/mcp"
 )
 
 // A step is one change install or uninstall makes: a file written or

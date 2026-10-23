@@ -31,10 +31,10 @@ import (
 	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/x/ansi"
 
-	"herdmux/internal/colorscheme"
-	"herdmux/internal/tmux"
-	"herdmux/internal/ui/split"
-	"herdmux/internal/ui/style"
+	"github.com/sh4r10/herdmux/internal/colorscheme"
+	"github.com/sh4r10/herdmux/internal/tmux"
+	"github.com/sh4r10/herdmux/internal/ui/split"
+	"github.com/sh4r10/herdmux/internal/ui/style"
 )
 
 // Backend is what the model needs: the schemes and the saved choice (the

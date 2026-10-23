@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"herdmux/internal/tmux"
+	"github.com/sh4r10/herdmux/internal/tmux"
 )
 
 // Visit clears Attention on every pane of window (a window id, @N), whatever

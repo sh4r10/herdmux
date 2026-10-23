@@ -7,7 +7,7 @@ import (
 	"io"
 	"strings"
 
-	"herdmux/internal/logfile"
+	"github.com/sh4r10/herdmux/internal/logfile"
 )
 
 // version is herdmux's release.

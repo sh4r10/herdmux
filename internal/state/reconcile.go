@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"time"
 
-	"herdmux/internal/tmux"
+	"github.com/sh4r10/herdmux/internal/tmux"
 )
 
 var semver = regexp.MustCompile(`^[0-9]+\.[0-9]+\.[0-9]+$`)

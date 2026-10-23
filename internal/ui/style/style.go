@@ -8,8 +8,8 @@ import (
 	"github.com/charmbracelet/x/ansi"
 	"github.com/muesli/termenv"
 
-	"herdmux/internal/colorscheme"
-	"herdmux/internal/tmux"
+	"github.com/sh4r10/herdmux/internal/colorscheme"
+	"github.com/sh4r10/herdmux/internal/tmux"
 )
 
 // Palette maps every colorscheme slot (colorscheme.Slots) to "#rrggbb".

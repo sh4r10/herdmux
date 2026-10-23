@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"herdmux/internal/tmuxtest"
+	"github.com/sh4r10/herdmux/internal/tmuxtest"
 )
 
 // End-to-end tests of config.toml, [keys] and launch.

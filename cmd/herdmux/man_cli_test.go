@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"herdmux/internal/config"
+	"github.com/sh4r10/herdmux/internal/config"
 )
 
 // Not a terminal (a buffer): `herdmux man` prints the roff source as is.

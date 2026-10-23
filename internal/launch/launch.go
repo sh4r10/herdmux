@@ -13,8 +13,8 @@ import (
 	"fmt"
 	"strings"
 
-	"herdmux/internal/config"
-	"herdmux/internal/tmux"
+	"github.com/sh4r10/herdmux/internal/config"
+	"github.com/sh4r10/herdmux/internal/tmux"
 )
 
 // Target is where a launch goes.

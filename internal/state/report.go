@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"time"
 
-	"herdmux/internal/tmux"
+	"github.com/sh4r10/herdmux/internal/tmux"
 )
 
 // Report is one state report for a pane: what `herdmux report` parses from

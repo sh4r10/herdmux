@@ -3,9 +3,9 @@ package statusbar
 import (
 	"strings"
 
-	"herdmux/internal/colorscheme"
-	"herdmux/internal/state"
-	"herdmux/internal/ui/style"
+	"github.com/sh4r10/herdmux/internal/colorscheme"
+	"github.com/sh4r10/herdmux/internal/state"
+	"github.com/sh4r10/herdmux/internal/ui/style"
 )
 
 // The formats are pure: no #(), and nothing but pane options and tmux's own

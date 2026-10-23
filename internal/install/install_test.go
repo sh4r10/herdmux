@@ -13,11 +13,11 @@ import (
 	"strings"
 	"testing"
 
-	"herdmux/internal/integrations"
-	"herdmux/internal/integrations/claude"
-	"herdmux/internal/mcp"
-	"herdmux/internal/tmux"
-	"herdmux/internal/tmuxtest"
+	"github.com/sh4r10/herdmux/internal/integrations"
+	"github.com/sh4r10/herdmux/internal/integrations/claude"
+	"github.com/sh4r10/herdmux/internal/mcp"
+	"github.com/sh4r10/herdmux/internal/tmux"
+	"github.com/sh4r10/herdmux/internal/tmuxtest"
 )
 
 // Every test here runs against a temp HOME (and XDG_CONFIG_HOME), with fake

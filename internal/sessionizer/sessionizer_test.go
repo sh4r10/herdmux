@@ -8,9 +8,9 @@ import (
 	"testing"
 	"time"
 
-	"herdmux/internal/state"
-	"herdmux/internal/tmux"
-	"herdmux/internal/tmuxtest"
+	"github.com/sh4r10/herdmux/internal/state"
+	"github.com/sh4r10/herdmux/internal/tmux"
+	"github.com/sh4r10/herdmux/internal/tmuxtest"
 )
 
 func TestSessionName(t *testing.T) {

@@ -1,8 +1,8 @@
 package main
 
 import (
-	"herdmux/internal/statusbar"
-	"herdmux/internal/tmux"
+	"github.com/sh4r10/herdmux/internal/statusbar"
+	"github.com/sh4r10/herdmux/internal/tmux"
 )
 
 // The status bar's parts of init and tmux-hook.

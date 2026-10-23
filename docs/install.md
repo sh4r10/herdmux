@@ -7,7 +7,13 @@ herdmux is built and tested against tmux 3.5a. Building it needs Go 1.27 (`go.mo
 ## 1. Build the binary and put it on PATH
 
 ```bash
-git clone <this repo> herdmux && cd herdmux
+go install github.com/sh4r10/herdmux/cmd/herdmux@latest   # lands in $(go env GOBIN) or ~/go/bin
+```
+
+Or from a checkout:
+
+```bash
+git clone https://github.com/sh4r10/herdmux && cd herdmux
 go build -o ~/.local/bin/herdmux ./cmd/herdmux
 ```
 

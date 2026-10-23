@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"io"
 
-	"herdmux/internal/integrations/claude"
+	"github.com/sh4r10/herdmux/internal/integrations/claude"
 )
 
 // maxHookInput caps the hook JSON read from stdin. Events carry tool inputs

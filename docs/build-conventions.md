@@ -4,7 +4,7 @@ Shared conventions for herdmux's code. Change them only on purpose, and update t
 
 ## Module and layout
 
-- Module path: `herdmux`. Imports look like `herdmux/internal/tmux`.
+- Module path: `github.com/sh4r10/herdmux`. Imports look like `github.com/sh4r10/herdmux/internal/tmux`.
 - `go 1.27`, `toolchain go1.27.3`. staticcheck and govulncheck are `tool` directives, run with `go tool`.
 - `cmd/herdmux/` holds the thin CLI only. The work goes in `internal/<feature>/`. Every package is built; a `doc.go` that remains holds only the package comment.
 - `internal/logfile` is the shared log (see Logging).

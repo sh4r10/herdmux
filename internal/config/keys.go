@@ -6,7 +6,7 @@ import (
 	"strings"
 	"unicode/utf8"
 
-	"herdmux/internal/tmux"
+	"github.com/sh4r10/herdmux/internal/tmux"
 )
 
 // Spec is one [keys] value: a tmux key in the prefix or root table. The zero

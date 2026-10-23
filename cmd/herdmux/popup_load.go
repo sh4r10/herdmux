@@ -3,8 +3,8 @@ package main
 import (
 	"sync"
 
-	"herdmux/internal/tmux"
-	"herdmux/internal/ui/popup"
+	"github.com/sh4r10/herdmux/internal/tmux"
+	"github.com/sh4r10/herdmux/internal/ui/popup"
 )
 
 // Popup verbs open fast by keeping tmux calls off the key-to-first-frame

@@ -6,8 +6,8 @@ import (
 	"testing"
 	"time"
 
-	"herdmux/internal/config"
-	"herdmux/internal/tmuxtest"
+	"github.com/sh4r10/herdmux/internal/config"
+	"github.com/sh4r10/herdmux/internal/tmuxtest"
 )
 
 // new-window's -n and -c expand formats: an agent name or a pane directory

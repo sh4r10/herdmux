@@ -9,8 +9,8 @@ import (
 	"strings"
 	"testing"
 
-	"herdmux/internal/integrations"
-	"herdmux/internal/integrations/claude"
+	"github.com/sh4r10/herdmux/internal/integrations"
+	"github.com/sh4r10/herdmux/internal/integrations/claude"
 )
 
 // The herdmux-dev registrations (dev/claude, dev/opencode, dev/pi), read by

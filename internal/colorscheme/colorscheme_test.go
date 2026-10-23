@@ -9,7 +9,7 @@ import (
 	"strings"
 	"testing"
 
-	"herdmux/internal/tmuxtest"
+	"github.com/sh4r10/herdmux/internal/tmuxtest"
 )
 
 // valid is a complete scheme body; tests edit it.

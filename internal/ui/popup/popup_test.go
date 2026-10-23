@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"herdmux/internal/tmuxtest"
+	"github.com/sh4r10/herdmux/internal/tmuxtest"
 )
 
 func env(m map[string]string) func(string) string { return func(k string) string { return m[k] } }

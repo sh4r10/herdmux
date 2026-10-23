@@ -13,8 +13,8 @@ import (
 
 	sdk "github.com/modelcontextprotocol/go-sdk/mcp"
 
-	"herdmux/internal/colorscheme"
-	"herdmux/internal/tmuxtest"
+	"github.com/sh4r10/herdmux/internal/colorscheme"
+	"github.com/sh4r10/herdmux/internal/tmuxtest"
 )
 
 // env is a getenv for the server: inside s (TMUX, TMUX_PANE = pane) unless

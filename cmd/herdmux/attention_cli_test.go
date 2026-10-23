@@ -5,10 +5,10 @@ import (
 	"testing"
 	"time"
 
-	"herdmux/internal/attention"
-	"herdmux/internal/state"
-	"herdmux/internal/tmuxtest"
-	"herdmux/internal/ui/style"
+	"github.com/sh4r10/herdmux/internal/attention"
+	"github.com/sh4r10/herdmux/internal/state"
+	"github.com/sh4r10/herdmux/internal/tmuxtest"
+	"github.com/sh4r10/herdmux/internal/ui/style"
 )
 
 // End-to-end tests of next-attention and the bell that report and hook claude

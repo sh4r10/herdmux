@@ -23,8 +23,8 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 
-	"herdmux/internal/colorscheme"
-	"herdmux/internal/tmux"
+	"github.com/sh4r10/herdmux/internal/colorscheme"
+	"github.com/sh4r10/herdmux/internal/tmux"
 )
 
 // Environment a popup's inner run gets.

@@ -8,10 +8,10 @@ import (
 
 	"github.com/charmbracelet/x/ansi"
 
-	"herdmux/internal/colorscheme"
-	"herdmux/internal/tmuxtest"
-	"herdmux/internal/ui/style"
-	"herdmux/internal/ui/uitest"
+	"github.com/sh4r10/herdmux/internal/colorscheme"
+	"github.com/sh4r10/herdmux/internal/tmuxtest"
+	"github.com/sh4r10/herdmux/internal/ui/style"
+	"github.com/sh4r10/herdmux/internal/ui/uitest"
 )
 
 func TestLayoutRender(t *testing.T) {

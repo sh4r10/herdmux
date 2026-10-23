@@ -9,10 +9,10 @@ import (
 	"testing"
 	"time"
 
-	"herdmux/internal/colorscheme"
-	"herdmux/internal/state"
-	"herdmux/internal/tmuxtest"
-	"herdmux/internal/ui/style"
+	"github.com/sh4r10/herdmux/internal/colorscheme"
+	"github.com/sh4r10/herdmux/internal/state"
+	"github.com/sh4r10/herdmux/internal/tmuxtest"
+	"github.com/sh4r10/herdmux/internal/ui/style"
 )
 
 // server starts a tmuxtest server with the colours and formats set (and a

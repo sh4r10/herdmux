@@ -6,7 +6,7 @@ import (
 	"syscall"
 	"time"
 
-	"herdmux/internal/tmux"
+	"github.com/sh4r10/herdmux/internal/tmux"
 )
 
 // StopWait is how long Stop waits for the agent to leave the foreground.

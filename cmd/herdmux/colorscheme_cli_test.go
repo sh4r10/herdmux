@@ -7,9 +7,9 @@ import (
 	"testing"
 	"time"
 
-	"herdmux/internal/colorscheme"
-	"herdmux/internal/state"
-	"herdmux/internal/tmuxtest"
+	"github.com/sh4r10/herdmux/internal/colorscheme"
+	"github.com/sh4r10/herdmux/internal/state"
+	"github.com/sh4r10/herdmux/internal/tmuxtest"
 )
 
 // End-to-end tests of colorschemes: init's apply and

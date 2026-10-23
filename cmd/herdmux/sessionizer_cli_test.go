@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"herdmux/internal/tmuxtest"
+	"github.com/sh4r10/herdmux/internal/tmuxtest"
 )
 
 // End-to-end test of the sessionizer popup: the real popup on an attached

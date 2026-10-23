@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"herdmux/internal/tmuxtest"
+	"github.com/sh4r10/herdmux/internal/tmuxtest"
 )
 
 // install/uninstall through the CLI, on runCLI's temp HOME, with a fake

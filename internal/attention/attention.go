@@ -20,10 +20,10 @@ import (
 	"syscall"
 	"time"
 
-	"herdmux/internal/colorscheme"
-	"herdmux/internal/state"
-	"herdmux/internal/tmux"
-	"herdmux/internal/ui/style"
+	"github.com/sh4r10/herdmux/internal/colorscheme"
+	"github.com/sh4r10/herdmux/internal/state"
+	"github.com/sh4r10/herdmux/internal/tmux"
+	"github.com/sh4r10/herdmux/internal/ui/style"
 )
 
 // Order returns the agents with Attention, most urgent first: needs-input

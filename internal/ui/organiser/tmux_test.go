@@ -8,8 +8,8 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 
-	"herdmux/internal/tmuxtest"
-	"herdmux/internal/ui/split"
+	"github.com/sh4r10/herdmux/internal/tmuxtest"
+	"github.com/sh4r10/herdmux/internal/ui/split"
 )
 
 // Tests of TmuxBackend on throwaway servers, driving the model in-process,

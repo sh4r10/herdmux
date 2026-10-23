@@ -8,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	"herdmux/internal/tmuxtest"
+	"github.com/sh4r10/herdmux/internal/tmuxtest"
 )
 
 // agentPane opens a background window whose pane runs a long sleep, standing

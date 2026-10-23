@@ -12,7 +12,7 @@ import (
 	"sort"
 	"strings"
 
-	"herdmux/internal/config"
+	"github.com/sh4r10/herdmux/internal/config"
 )
 
 //go:embed colors/*.toml

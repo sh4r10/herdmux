@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	"herdmux/internal/tmuxtest"
+	"github.com/sh4r10/herdmux/internal/tmuxtest"
 )
 
 func listKey(s *tmuxtest.Server, table, key string) string {

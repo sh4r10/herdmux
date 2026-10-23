@@ -22,7 +22,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/x/ansi"
 
-	"herdmux/internal/ui/style"
+	"github.com/sh4r10/herdmux/internal/ui/style"
 )
 
 // Layout constants.

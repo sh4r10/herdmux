@@ -23,9 +23,9 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 
-	"herdmux/internal/state"
-	"herdmux/internal/ui/split"
-	"herdmux/internal/ui/style"
+	"github.com/sh4r10/herdmux/internal/state"
+	"github.com/sh4r10/herdmux/internal/ui/split"
+	"github.com/sh4r10/herdmux/internal/ui/style"
 )
 
 // Window is one row: a window of the session, as its tab shows it.

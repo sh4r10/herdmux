@@ -3,7 +3,7 @@ package state
 import (
 	"strings"
 
-	"herdmux/internal/tmux"
+	"github.com/sh4r10/herdmux/internal/tmux"
 )
 
 // Agent is one agent pane as List returns it. The JSON form is what

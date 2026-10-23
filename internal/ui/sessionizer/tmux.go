@@ -1,9 +1,9 @@
 package sessionizer
 
 import (
-	"herdmux/internal/config"
-	"herdmux/internal/sessionizer"
-	"herdmux/internal/tmux"
+	"github.com/sh4r10/herdmux/internal/config"
+	"github.com/sh4r10/herdmux/internal/sessionizer"
+	"github.com/sh4r10/herdmux/internal/tmux"
 )
 
 // TmuxBackend is the Backend on a real server.

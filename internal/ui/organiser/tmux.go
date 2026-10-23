@@ -6,9 +6,9 @@ import (
 	"strconv"
 	"strings"
 
-	"herdmux/internal/state"
-	"herdmux/internal/tmux"
-	"herdmux/internal/ui/split"
+	"github.com/sh4r10/herdmux/internal/state"
+	"github.com/sh4r10/herdmux/internal/tmux"
+	"github.com/sh4r10/herdmux/internal/ui/split"
 )
 
 // TmuxBackend is the Backend on a real server, for one session. Every

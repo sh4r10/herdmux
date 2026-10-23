@@ -6,9 +6,9 @@ import (
 	"testing"
 	"time"
 
-	"herdmux/internal/state"
-	"herdmux/internal/tmuxtest"
-	"herdmux/internal/ui/style"
+	"github.com/sh4r10/herdmux/internal/state"
+	"github.com/sh4r10/herdmux/internal/tmuxtest"
+	"github.com/sh4r10/herdmux/internal/ui/style"
 )
 
 func TestOrder(t *testing.T) {

@@ -8,8 +8,8 @@ import (
 	"strings"
 	"testing"
 
-	"herdmux/internal/config"
-	"herdmux/internal/integrations"
+	"github.com/sh4r10/herdmux/internal/config"
+	"github.com/sh4r10/herdmux/internal/integrations"
 )
 
 // Paths are every file install and uninstall read or write. They all

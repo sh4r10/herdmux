@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"text/tabwriter"
 
-	"herdmux/internal/state"
-	"herdmux/internal/tmux"
+	"github.com/sh4r10/herdmux/internal/state"
+	"github.com/sh4r10/herdmux/internal/tmux"
 )
 
 // The state verbs: report, list, init and tmux-hook. Each

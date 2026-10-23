@@ -10,7 +10,7 @@ import (
 	"sync"
 	"time"
 
-	"herdmux/internal/tmux"
+	"github.com/sh4r10/herdmux/internal/tmux"
 )
 
 // Client is a real attached client: `tmux attach` running under script(1) in

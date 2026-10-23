@@ -9,8 +9,8 @@ import (
 	"encoding/json"
 	"errors"
 
-	"herdmux/internal/state"
-	"herdmux/internal/tmux"
+	"github.com/sh4r10/herdmux/internal/state"
+	"github.com/sh4r10/herdmux/internal/tmux"
 )
 
 // Command is the exact command of every herdmux hook entry. install merges

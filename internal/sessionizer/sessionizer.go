@@ -8,8 +8,8 @@ import (
 	"slices"
 	"strings"
 
-	"herdmux/internal/state"
-	"herdmux/internal/tmux"
+	"github.com/sh4r10/herdmux/internal/state"
+	"github.com/sh4r10/herdmux/internal/tmux"
 )
 
 // Entry is one row in the sessionizer list: either an open session (type=session)

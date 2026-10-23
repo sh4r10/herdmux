@@ -10,9 +10,9 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 
-	"herdmux/internal/sessionizer"
-	"herdmux/internal/ui/split"
-	"herdmux/internal/ui/style"
+	"github.com/sh4r10/herdmux/internal/sessionizer"
+	"github.com/sh4r10/herdmux/internal/ui/split"
+	"github.com/sh4r10/herdmux/internal/ui/style"
 )
 
 // Backend is what the model needs from tmux.

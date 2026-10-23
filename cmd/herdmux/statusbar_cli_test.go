@@ -9,8 +9,8 @@ import (
 	"testing"
 	"time"
 
-	"herdmux/internal/statusbar"
-	"herdmux/internal/tmuxtest"
+	"github.com/sh4r10/herdmux/internal/statusbar"
+	"github.com/sh4r10/herdmux/internal/tmuxtest"
 )
 
 // End-to-end tests of the status bar: herdmux init, the git

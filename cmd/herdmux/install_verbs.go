@@ -3,8 +3,8 @@ package main
 import (
 	"flag"
 
-	"herdmux/internal/install"
-	"herdmux/internal/tmux"
+	"github.com/sh4r10/herdmux/internal/install"
+	"github.com/sh4r10/herdmux/internal/tmux"
 )
 
 // defineInstall is `herdmux install [--mcp] [--dry-run]`.

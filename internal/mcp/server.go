@@ -21,11 +21,11 @@ import (
 
 	sdk "github.com/modelcontextprotocol/go-sdk/mcp"
 
-	"herdmux/internal/colorscheme"
-	"herdmux/internal/config"
-	"herdmux/internal/logfile"
-	"herdmux/internal/state"
-	"herdmux/internal/tmux"
+	"github.com/sh4r10/herdmux/internal/colorscheme"
+	"github.com/sh4r10/herdmux/internal/config"
+	"github.com/sh4r10/herdmux/internal/logfile"
+	"github.com/sh4r10/herdmux/internal/state"
+	"github.com/sh4r10/herdmux/internal/tmux"
 )
 
 // Name is the server name; agents show its tools as mcp__herdmux__<tool>.

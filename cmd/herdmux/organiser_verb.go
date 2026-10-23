@@ -3,11 +3,11 @@ package main
 import (
 	"flag"
 
-	"herdmux/internal/state"
-	"herdmux/internal/tmux"
-	"herdmux/internal/ui/organiser"
-	"herdmux/internal/ui/popup"
-	"herdmux/internal/ui/style"
+	"github.com/sh4r10/herdmux/internal/state"
+	"github.com/sh4r10/herdmux/internal/tmux"
+	"github.com/sh4r10/herdmux/internal/ui/organiser"
+	"github.com/sh4r10/herdmux/internal/ui/popup"
+	"github.com/sh4r10/herdmux/internal/ui/style"
 )
 
 // The window organiser popup.

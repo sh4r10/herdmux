@@ -22,7 +22,7 @@ import (
 	"strconv"
 	"strings"
 
-	"herdmux/internal/tmux"
+	"github.com/sh4r10/herdmux/internal/tmux"
 )
 
 // The five pane options, all written by this package only.

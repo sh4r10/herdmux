@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"strings"
 
-	"herdmux/internal/state"
+	"github.com/sh4r10/herdmux/internal/state"
 )
 
 // maxDepth bounds the walk up the process tree.

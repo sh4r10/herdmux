@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"strings"
 
-	"herdmux/internal/state"
-	"herdmux/internal/tmux"
-	"herdmux/internal/ui/split"
+	"github.com/sh4r10/herdmux/internal/state"
+	"github.com/sh4r10/herdmux/internal/tmux"
+	"github.com/sh4r10/herdmux/internal/ui/split"
 )
 
 // The picker's remembered toggles: server-global runtime options (lost with

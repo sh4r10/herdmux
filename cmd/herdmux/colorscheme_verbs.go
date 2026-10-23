@@ -6,12 +6,12 @@ import (
 	"strings"
 	"text/tabwriter"
 
-	"herdmux/internal/colorscheme"
-	"herdmux/internal/logfile"
-	"herdmux/internal/state"
-	"herdmux/internal/tmux"
-	"herdmux/internal/ui/colorpicker"
-	"herdmux/internal/ui/popup"
+	"github.com/sh4r10/herdmux/internal/colorscheme"
+	"github.com/sh4r10/herdmux/internal/logfile"
+	"github.com/sh4r10/herdmux/internal/state"
+	"github.com/sh4r10/herdmux/internal/tmux"
+	"github.com/sh4r10/herdmux/internal/ui/colorpicker"
+	"github.com/sh4r10/herdmux/internal/ui/popup"
 )
 
 // The colorscheme parts of init and the colorscheme verb.

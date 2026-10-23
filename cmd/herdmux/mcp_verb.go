@@ -7,7 +7,7 @@ import (
 	"os/signal"
 	"syscall"
 
-	"herdmux/internal/mcp"
+	"github.com/sh4r10/herdmux/internal/mcp"
 )
 
 // defineMCP is `herdmux mcp`: the stdio MCP server. It

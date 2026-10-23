@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"herdmux/internal/manpage"
+	"github.com/sh4r10/herdmux/internal/manpage"
 )
 
 // defineMan is `herdmux man`: the embedded herdmux(1). On a terminal with

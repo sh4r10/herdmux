@@ -22,7 +22,7 @@ import (
 	"syscall"
 	"testing"
 
-	"herdmux/internal/tmux"
+	"github.com/sh4r10/herdmux/internal/tmux"
 )
 
 // Options configure one install or uninstall run.

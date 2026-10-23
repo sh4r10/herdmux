@@ -22,11 +22,11 @@ import (
 	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/x/ansi"
 
-	"herdmux/internal/config"
-	"herdmux/internal/state"
-	"herdmux/internal/ui/launchprompt"
-	"herdmux/internal/ui/split"
-	"herdmux/internal/ui/style"
+	"github.com/sh4r10/herdmux/internal/config"
+	"github.com/sh4r10/herdmux/internal/state"
+	"github.com/sh4r10/herdmux/internal/ui/launchprompt"
+	"github.com/sh4r10/herdmux/internal/ui/split"
+	"github.com/sh4r10/herdmux/internal/ui/style"
 )
 
 // Settings are the two toggles remembered between opens.

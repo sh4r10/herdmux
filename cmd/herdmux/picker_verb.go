@@ -3,14 +3,14 @@ package main
 import (
 	"flag"
 
-	"herdmux/internal/config"
-	"herdmux/internal/launch"
-	"herdmux/internal/state"
-	"herdmux/internal/tmux"
-	"herdmux/internal/ui/launchprompt"
-	"herdmux/internal/ui/picker"
-	"herdmux/internal/ui/popup"
-	"herdmux/internal/ui/style"
+	"github.com/sh4r10/herdmux/internal/config"
+	"github.com/sh4r10/herdmux/internal/launch"
+	"github.com/sh4r10/herdmux/internal/state"
+	"github.com/sh4r10/herdmux/internal/tmux"
+	"github.com/sh4r10/herdmux/internal/ui/launchprompt"
+	"github.com/sh4r10/herdmux/internal/ui/picker"
+	"github.com/sh4r10/herdmux/internal/ui/popup"
+	"github.com/sh4r10/herdmux/internal/ui/style"
 )
 
 // The agent picker popup.

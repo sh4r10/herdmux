@@ -17,8 +17,8 @@ import (
 	"sync"
 	"time"
 
-	"herdmux/internal/git"
-	"herdmux/internal/tmux"
+	"github.com/sh4r10/herdmux/internal/git"
+	"github.com/sh4r10/herdmux/internal/tmux"
 )
 
 // The git pane options. Empty head means nothing is shown.

@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"herdmux/internal/tmuxtest"
+	"github.com/sh4r10/herdmux/internal/tmuxtest"
 )
 
 func TestStop(t *testing.T) {

@@ -3,11 +3,11 @@ package main
 import (
 	"flag"
 
-	"herdmux/internal/attention"
-	"herdmux/internal/logfile"
-	"herdmux/internal/state"
-	"herdmux/internal/tmux"
-	"herdmux/internal/ui/popup"
+	"github.com/sh4r10/herdmux/internal/attention"
+	"github.com/sh4r10/herdmux/internal/logfile"
+	"github.com/sh4r10/herdmux/internal/state"
+	"github.com/sh4r10/herdmux/internal/tmux"
+	"github.com/sh4r10/herdmux/internal/ui/popup"
 )
 
 // next-attention and the cross-session bell.

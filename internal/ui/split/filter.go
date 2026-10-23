@@ -5,7 +5,7 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 
-	"herdmux/internal/ui/style"
+	"github.com/sh4r10/herdmux/internal/ui/style"
 )
 
 // Filter is the popups' `/` filter: `/` starts

@@ -5,8 +5,8 @@ import (
 	"strings"
 	"testing"
 
-	"herdmux/internal/tmux"
-	"herdmux/internal/tmuxtest"
+	"github.com/sh4r10/herdmux/internal/tmux"
+	"github.com/sh4r10/herdmux/internal/tmuxtest"
 )
 
 func envOf(m map[string]string) func(string) string { return func(k string) string { return m[k] } }

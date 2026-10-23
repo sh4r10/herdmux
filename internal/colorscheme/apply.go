@@ -1,7 +1,7 @@
 package colorscheme
 
 import (
-	"herdmux/internal/tmux"
+	"github.com/sh4r10/herdmux/internal/tmux"
 )
 
 // OptActive (global, runtime-only) names the scheme the server shows now.

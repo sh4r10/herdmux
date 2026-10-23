@@ -11,9 +11,9 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/x/ansi"
 
-	"herdmux/internal/colorscheme"
-	"herdmux/internal/config"
-	"herdmux/internal/ui/style"
+	"github.com/sh4r10/herdmux/internal/colorscheme"
+	"github.com/sh4r10/herdmux/internal/config"
+	"github.com/sh4r10/herdmux/internal/ui/style"
 )
 
 var update = flag.Bool("update", false, "rewrite the golden files in testdata/")

@@ -1,6 +1,6 @@
 package style
 
-import "herdmux/internal/state"
+import "github.com/sh4r10/herdmux/internal/state"
 
 // Nerd Font icons shared by the tabs (internal/statusbar) and the popups.
 // Each is wider than its cell, so whatever follows one must start with a

@@ -3,12 +3,12 @@ package main
 import (
 	"flag"
 
-	"herdmux/internal/config"
-	"herdmux/internal/sessionizer"
-	"herdmux/internal/tmux"
-	"herdmux/internal/ui/popup"
-	usessionizer "herdmux/internal/ui/sessionizer"
-	"herdmux/internal/ui/style"
+	"github.com/sh4r10/herdmux/internal/config"
+	"github.com/sh4r10/herdmux/internal/sessionizer"
+	"github.com/sh4r10/herdmux/internal/tmux"
+	"github.com/sh4r10/herdmux/internal/ui/popup"
+	usessionizer "github.com/sh4r10/herdmux/internal/ui/sessionizer"
+	"github.com/sh4r10/herdmux/internal/ui/style"
 )
 
 // The session switcher / project launcher popup (prefix g by default).
