@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.3.0 — 2026-10-23
+
+- Changed: the sessionizer opens typing into its filter, which now fuzzy-matches names (matched letters highlighted, best matches first). Esc clears the filter, then closes; `q` is text.
+- New: the sessionizer's right column shows the selected entry's full path and a live preview of a session's active pane, or the session a directory would create or switch to and its contents.
+- New: in every popup, Ctrl-N/Ctrl-P move like j/k (also while typing a filter) and Ctrl-Y acts as Enter.
+- Fixed: on tmux 3.7, moving or unbinding a herdmux key never restored the binding that was there before (tmux 3.7 prints nothing for `list-keys -T <table> <key>`).
+- Changed: the sessionizer re-walks the configured roots every 2 s instead of every 250 ms while open.
+
 ## 1.2.0 — 2026-10-22
 
 - Changed: the config directory honours `$XDG_CONFIG_HOME` (`$XDG_CONFIG_HOME/herdmux`); move your config there if you set it.

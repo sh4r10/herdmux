@@ -50,7 +50,7 @@ func TestNoArgsPrintsHelp(t *testing.T) {
 func TestVersion(t *testing.T) {
 	t.Parallel()
 	r := runCLI(t, nil, "--version")
-	if r.code != 0 || r.stdout != "herdmux 1.2.0\n" {
+	if r.code != 0 || r.stdout != "herdmux 1.3.0\n" {
 		t.Fatalf("code=%d stdout=%q", r.code, r.stdout)
 	}
 }
