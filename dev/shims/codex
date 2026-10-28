@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+# herdmux-dev codex shim: execs the real codex, found further down PATH, with
+# the herdmux hooks (internal/integrations/codex/hooks.json, as -c overrides)
+# and the dev-only MCP registration for this launch only. ~/.codex is never
+# written: codex keeps its own config, auth and sessions.
+#
+# Hooks from overrides are untrusted like any non-managed hook, so the launch
+# passes --dangerously-bypass-hook-trust: the only hooks here are herdmux's
+# own. The installed hooks.json instead needs one /hooks review in codex.
+set -euo pipefail
+shims=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+
+real=
+IFS=: read -ra dirs <<<"$PATH"
+for d in "${dirs[@]}"; do
+  [ -n "$d" ] && [ "$(cd "$d" 2>/dev/null && pwd)" != "$shims" ] || continue
+  if [ -x "$d/codex" ] && [ ! -d "$d/codex" ]; then real=$d/codex; break; fi
+done
+[ -n "$real" ] || { echo "codex shim: no real codex on PATH" >&2; exit 127; }
+
+# One entry per event of hooks.json (TestHooks checks the list).
+hook='[{hooks=[{type="command",command="herdmux hook codex"}]}]'
+args=(--dangerously-bypass-hook-trust)
+for ev in SessionStart UserPromptSubmit PreToolUse PostToolUse PermissionRequest Stop Interrupt SessionEnd; do
+  args+=(-c "hooks.$ev=$hook")
+done
+# The dev-only mcp_servers.herdmux (install --mcp uses `codex mcp add`).
+args+=(-c 'mcp_servers.herdmux.command="herdmux"' -c 'mcp_servers.herdmux.args=["mcp"]')
+
+for v in $(compgen -e); do
+  case $v in HERDR_*) unset "$v" ;; esac
+done
+exec "$real" "${args[@]}" "$@"

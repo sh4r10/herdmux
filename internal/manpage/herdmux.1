@@ -16,7 +16,7 @@ herdmux \- an AI\-agent awareness layer for tmux
 .B herdmux
 runs on top of an existing
 .BR tmux (1)
-setup and shows what every coding agent (claude, opencode or pi) in every
+setup and shows what every coding agent (claude, codex, opencode or pi) in every
 tmux session is doing: working, waiting for the user, or finished.
 It flags the agents that need the user and gets the user to them in a keypress.
 .PP
@@ -199,6 +199,7 @@ or
 .B \-\-agent
 is required and is
 .BR claude ,
+.BR codex ,
 .B opencode
 or
 .BR pi .
@@ -214,7 +215,8 @@ Append a marked
 .B run\-shell \(aqherdmux init\(aq
 block to
 .I tmux.conf
-and install the claude hooks, the opencode plugin and the pi extension (see
+and install the claude and codex hooks, the opencode plugin and the pi
+extension (see
 .BR FILES ).
 Before writing anything it checks that
 .B herdmux
@@ -236,7 +238,7 @@ Print a diff of every change and write nothing.
 .B \-\-mcp
 Also register
 .B herdmux mcp
-with each agent (claude and pi must be on PATH).
+with each agent (claude, codex and pi must be on PATH).
 .RE
 .TP
 .B herdmux uninstall \fR[\fB\-\-purge\fR]
@@ -284,10 +286,11 @@ These are called by tmux hooks and the agent integrations, and are listed by
 .BR "herdmux help \-\-all" .
 They always exit 0 and log errors.
 .TP
-.B herdmux hook claude
-The claude hook adapter: one claude hook event as JSON on stdin becomes a
+.B herdmux hook \fRclaude\fR|\fRcodex
+The claude and codex hook adapter: one hook event as JSON on stdin becomes a
 state report for
 .BR $TMUX_PANE .
+codex's hooks speak claude's protocol.
 Without
 .B HERDMUX=1
 and
@@ -458,6 +461,11 @@ Any valid entry replaces the whole default menu, which is:
 name = "claude"
 key = "c"
 command = "claude"
+\&
+[[agent]]
+name = "codex"
+key = "d"
+command = "codex"
 \&
 [[agent]]
 name = "opencode"
@@ -701,10 +709,11 @@ a warning; the saved file is not changed.
 .SH AGENT STATES AND ATTENTION
 An
 .I agent
-is a tmux pane in which an agent CLI (claude, opencode or pi) is running.
+is a tmux pane in which an agent CLI (claude, codex, opencode or pi) is
+running.
 It belongs to the session its pane is in; moving the pane moves the agent.
-claude reports through its hooks, opencode through a plugin and pi through an
-extension, all calling herdmux; any program can report with
+claude and codex report through their hooks, opencode through a plugin and pi
+through an extension, all calling herdmux; any program can report with
 .BR "herdmux report" .
 .PP
 Each agent has one
@@ -841,6 +850,13 @@ and
 install adds claude hook entries running
 .BR "herdmux hook claude" .
 .TP
+.I ~/.codex/hooks.json
+install adds codex hook entries running
+.BR "herdmux hook codex" .
+codex runs them only once they are trusted with
+.B /hooks
+inside codex.
+.TP
 .I ~/.config/opencode/plugins/herdmux\-agent\-state.js
 The opencode plugin.
 .TP
@@ -856,6 +872,10 @@ herdmux is also registered as an MCP server with claude
 .RB ( "claude mcp add \-s user herdmux \-\- herdmux mcp" ,
 plus read\-tool permissions in
 .IR ~/.claude/settings.json ),
+codex
+.RB ( "codex mcp add herdmux \-\- herdmux mcp" ,
+in
+.IR ~/.codex/config.toml ),
 opencode (in
 .IR ~/.config/opencode/opencode.json )
 and pi

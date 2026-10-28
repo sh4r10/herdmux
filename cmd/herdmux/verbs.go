@@ -38,7 +38,7 @@ var verbs = []verb{
 	{name: "help", synopsis: "[--all | command]", summary: "show help; --all includes hidden commands"},
 
 	// Hidden.
-	{name: "hook", synopsis: "claude", summary: "the claude --settings hook adapter (hook JSON on stdin; always exits 0)",
+	{name: "hook", synopsis: "claude|codex", summary: "the claude and codex hook adapter (hook JSON on stdin; always exits 0)",
 		hidden: true, neverFail: true, define: defineHook},
 	{name: "tmux-hook", synopsis: "<event> [args]", summary: "the entry point for tmux hooks (always exits 0)",
 		hidden: true, neverFail: true, define: defineTmuxHook},

@@ -12,6 +12,7 @@ import (
 
 	"github.com/sh4r10/herdmux/internal/integrations"
 	"github.com/sh4r10/herdmux/internal/integrations/claude"
+	"github.com/sh4r10/herdmux/internal/integrations/codex"
 	"github.com/sh4r10/herdmux/internal/mcp"
 )
 
@@ -186,16 +187,18 @@ func parseTree(src []byte) any {
 	return v
 }
 
-func isOurHook(v any) bool {
+// isOurHook reports whether v is a hook entry running command (claude.Command
+// or codex.Command).
+func isOurHook(v any, command string) bool {
 	h, ok := v.(*object)
 	if !ok {
 		return false
 	}
 	c, _ := h.get("command")
-	return c == claude.Command
+	return c == command
 }
 
-func isOurGroup(v any) bool {
+func isOurGroup(v any, command string) bool {
 	g, ok := v.(*object)
 	if !ok {
 		return false
@@ -203,16 +206,16 @@ func isOurGroup(v any) bool {
 	hs, _ := g.get("hooks")
 	arr, _ := hs.([]any)
 	for _, h := range arr {
-		if isOurHook(h) {
+		if isOurHook(h, command) {
 			return true
 		}
 	}
 	return false
 }
 
-// stripOurHooks removes every hook whose command is claude.Command, and any
-// group left with no hooks.
-func stripOurHooks(groups []any) ([]any, bool) {
+// stripOurHooks removes every hook whose command is command, and any group
+// left with no hooks.
+func stripOurHooks(groups []any, command string) ([]any, bool) {
 	out := []any{}
 	changed := false
 	for _, g := range groups {
@@ -225,7 +228,7 @@ func stripOurHooks(groups []any) ([]any, bool) {
 		}
 		kept := []any{}
 		for _, h := range arr {
-			if !isOurHook(h) {
+			if !isOurHook(h, command) {
 				kept = append(kept, h)
 			}
 		}
@@ -250,56 +253,72 @@ func (o *object) get2(k string) (any, bool) {
 	return o.get(k)
 }
 
-func claudeEdit(install, withMCP bool) func(*jsonDoc) (bool, error) {
-	return func(d *jsonDoc) (bool, error) {
-		changed := false
-		want := parseTree(claude.Settings).(*object)
-		wantHooks, _ := want.get("hooks")
-		if install {
-			hooks, err := d.root.child("hooks")
-			if err != nil {
-				return false, err
+// editHooks merges the "hooks" of the embedded settings (claude.Settings or
+// codex.Hooks, whose entries all run command) into d's, group by group
+// after the user's own, or strips every hook running command. Both files
+// share Claude Code's hooks shape.
+func editHooks(d *jsonDoc, settings []byte, command string, install bool) (bool, error) {
+	changed := false
+	want := parseTree(settings).(*object)
+	wantHooks, _ := want.get("hooks")
+	if install {
+		hooks, err := d.root.child("hooks")
+		if err != nil {
+			return false, err
+		}
+		for _, ev := range wantHooks.(*object).members {
+			var cur []any
+			if v, ok := hooks.get(ev.key); ok {
+				if cur, ok = v.([]any); !ok {
+					return false, fmt.Errorf("hooks.%s is not an array", ev.key)
+				}
 			}
-			for _, ev := range wantHooks.(*object).members {
-				var cur []any
-				if v, ok := hooks.get(ev.key); ok {
-					if cur, ok = v.([]any); !ok {
-						return false, fmt.Errorf("hooks.%s is not an array", ev.key)
-					}
+			ours := []any{}
+			for _, g := range cur {
+				if isOurGroup(g, command) {
+					ours = append(ours, g)
 				}
-				ours := []any{}
-				for _, g := range cur {
-					if isOurGroup(g) {
-						ours = append(ours, g)
-					}
-				}
-				if canonical(ours) == canonical(ev.val) {
+			}
+			if canonical(ours) == canonical(ev.val) {
+				continue
+			}
+			cur, _ = stripOurHooks(cur, command)
+			hooks.set(ev.key, append(cur, ev.val.([]any)...))
+			changed = true
+		}
+	} else if v, ok := d.root.get("hooks"); ok {
+		if hooks, ok := v.(*object); ok {
+			for _, ev := range append([]member(nil), hooks.members...) {
+				arr, ok := ev.val.([]any)
+				if !ok {
 					continue
 				}
-				cur, _ = stripOurHooks(cur)
-				hooks.set(ev.key, append(cur, ev.val.([]any)...))
-				changed = true
-			}
-		} else if v, ok := d.root.get("hooks"); ok {
-			if hooks, ok := v.(*object); ok {
-				for _, ev := range append([]member(nil), hooks.members...) {
-					arr, ok := ev.val.([]any)
-					if !ok {
-						continue
-					}
-					if arr, c := stripOurHooks(arr); c {
-						changed = true
-						if len(arr) == 0 {
-							hooks.del(ev.key)
-						} else {
-							hooks.set(ev.key, arr)
-						}
+				if arr, c := stripOurHooks(arr, command); c {
+					changed = true
+					if len(arr) == 0 {
+						hooks.del(ev.key)
+					} else {
+						hooks.set(ev.key, arr)
 					}
 				}
-				if changed && len(hooks.members) == 0 {
-					d.root.del("hooks")
-				}
 			}
+			if changed && len(hooks.members) == 0 {
+				d.root.del("hooks")
+			}
+		}
+	}
+	return changed, nil
+}
+
+func codexEdit(install bool) func(*jsonDoc) (bool, error) {
+	return func(d *jsonDoc) (bool, error) { return editHooks(d, codex.Hooks, codex.Command, install) }
+}
+
+func claudeEdit(install, withMCP bool) func(*jsonDoc) (bool, error) {
+	return func(d *jsonDoc) (bool, error) {
+		changed, err := editHooks(d, claude.Settings, claude.Command, install)
+		if err != nil {
+			return false, err
 		}
 		// The MCP read tools' pre-allows: added with --mcp, always removed.
 		if install && !withMCP {
@@ -451,6 +470,29 @@ func claudeMCPStep(p Paths, install bool) step {
 	return s
 }
 
+// codexRegistered is the `[mcp_servers.herdmux]` table `codex mcp add`
+// writes to config.toml.
+var codexRegistered = regexp.MustCompile(`(?m)^\s*\[mcp_servers\.` + regexp.QuoteMeta(mcp.Name) + `\]\s*$`)
+
+func codexMCPStep(p Paths, install bool) step {
+	s := step{name: "codex MCP"}
+	b, _ := os.ReadFile(p.CodexConfig)
+	reg := codexRegistered.Match(b)
+	switch {
+	case install && reg:
+		s.past = "herdmux is already registered"
+	case install:
+		s.argv = append([]string{"codex", "mcp", "add", mcp.Name, "--"}, mcp.Command...)
+		s.action, s.past = "register herdmux", "registered herdmux"
+	case reg:
+		s.argv = []string{"codex", "mcp", "remove", mcp.Name}
+		s.action, s.past = "unregister herdmux", "unregistered herdmux"
+	default:
+		s.past = "herdmux isn't registered"
+	}
+	return s
+}
+
 // piWanted reports whether pi's entry already matches what install adds.
 func piWanted(e *object) bool {
 	if e == nil {
@@ -571,6 +613,8 @@ func plan(p Paths, install, withMCP, purge bool) (steps []step, warn, problems [
 	}
 	s, err := planJSON("claude hooks", p.ClaudeSettings, p, install, claudeEdit(install, withMCP))
 	add(describeJSON(s, install, what), nil, err)
+	s, err = planJSON("codex hooks", p.CodexHooks, p, install, codexEdit(install))
+	add(describeJSON(s, install, "the herdmux hooks"), nil, err)
 	add(planPlugin("opencode plugin", p.OpencodePlugin, p, integrations.OpencodePlugin, install))
 	add(planPlugin("pi extension", p.PiExtension, p, integrations.PiExtension, install))
 	if install && !withMCP {
@@ -578,7 +622,7 @@ func plan(p Paths, install, withMCP, purge bool) (steps []step, warn, problems [
 	}
 	s, err = planJSON("opencode MCP", p.OpencodeJSON, p, install, opencodeEdit(install))
 	add(describeJSON(s, install, "the mcp.herdmux entry"), nil, err)
-	steps = append(steps, claudeMCPStep(p, install), piMCPStep(p, install))
+	steps = append(steps, claudeMCPStep(p, install), codexMCPStep(p, install), piMCPStep(p, install))
 	if purge && exists(p.ConfigDir) {
 		if within(p.Home, p.ConfigDir) || p.ConfigDir == "/" {
 			problems = append(problems, fmt.Sprintf("won't purge %s: it contains the home directory", p.ConfigDir))

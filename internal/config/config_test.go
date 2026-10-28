@@ -39,7 +39,7 @@ func TestDefaultsWithNoFile(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if got := names(cfg.Agents); got != "claude=c opencode=o pi=p" {
+	if got := names(cfg.Agents); got != "claude=c codex=d opencode=o pi=p" {
 		t.Errorf("agents %q", got)
 	}
 	if !reflect.DeepEqual(cfg.Keys, DefaultKeys()) {
@@ -106,7 +106,7 @@ func TestOnlyKeysMeansDefaultAgents(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if got := names(cfg.Agents); got != "claude=c opencode=o pi=p" {
+	if got := names(cfg.Agents); got != "claude=c codex=d opencode=o pi=p" {
 		t.Errorf("agents %q", got)
 	}
 }
@@ -163,7 +163,7 @@ command = "opencode"
 	}
 	cfg, err = Parse([]byte("[[agent]]\nname = \"qq\"\ncommand = \"x\"\n"))
 	// Nothing left: the defaults, with the error.
-	if got := names(cfg.Agents); got != "claude=c opencode=o pi=p" || err == nil || !strings.Contains(err.Error(), `agent "qq": no free key`) {
+	if got := names(cfg.Agents); got != "claude=c codex=d opencode=o pi=p" || err == nil || !strings.Contains(err.Error(), `agent "qq": no free key`) {
 		t.Errorf("all-q name: %q %v", got, err)
 	}
 }
@@ -207,7 +207,7 @@ func TestBrokenEntriesFallBack(t *testing.T) {
 		if !strings.Contains(msg, tc.want) || !strings.Contains(msg, "using the default agents") {
 			t.Errorf("%s: error %q", name, msg)
 		}
-		if got := names(cfg.Agents); got != "claude=c opencode=o pi=p" {
+		if got := names(cfg.Agents); got != "claude=c codex=d opencode=o pi=p" {
 			t.Errorf("%s: agents %q", name, got)
 		}
 	}

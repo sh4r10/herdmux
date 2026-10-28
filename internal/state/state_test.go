@@ -234,7 +234,7 @@ func TestReconcileUnknownByCommand(t *testing.T) {
 	t.Parallel()
 	s := tmuxtest.New(t)
 	for _, tc := range []struct{ name, agent string }{
-		{"claude", "claude"}, {"opencode", "opencode"}, {"pi", "pi"}, {"2.1.300", "claude"}, {"node", ""},
+		{"claude", "claude"}, {"codex", "codex"}, {"opencode", "opencode"}, {"pi", "pi"}, {"2.1.300", "claude"}, {"node", ""},
 	} {
 		pane := s.Tmux("new-window", "-d", "-P", "-F", "#{pane_id}") // an interactive /bin/sh
 		s.Tmux("send-keys", "-t", pane, "bash -c 'exec -a "+tc.name+" sleep 100000'", "Enter")
@@ -274,8 +274,8 @@ func TestReconcileUnknownByCommand(t *testing.T) {
 func TestMatchCommand(t *testing.T) {
 	t.Parallel()
 	for cmd, want := range map[string]string{
-		"claude": "claude", "2.1.300": "claude", "10.0.1": "claude", "opencode": "opencode", "pi": "pi",
-		"node": "", "bash": "", "2.1": "", "v2.1.300": "", "pi2": "", "": "",
+		"claude": "claude", "2.1.300": "claude", "10.0.1": "claude", "codex": "codex", "opencode": "opencode", "pi": "pi",
+		"node": "", "bash": "", "2.1": "", "v2.1.300": "", "pi2": "", "codex.js": "", "": "",
 	} {
 		if got := MatchCommand(cmd); got != want {
 			t.Errorf("MatchCommand(%q) = %q, want %q", cmd, got, want)

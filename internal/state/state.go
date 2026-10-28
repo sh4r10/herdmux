@@ -27,7 +27,7 @@ import (
 
 // The five pane options, all written by this package only.
 const (
-	OptAgent     = "@herdmux_agent"     // claude | opencode | pi
+	OptAgent     = "@herdmux_agent"     // claude | codex | opencode | pi
 	OptState     = "@herdmux_state"     // working | needs-input | done | unknown
 	OptAttention = "@herdmux_attention" // "" | needs-input | done
 	OptSince     = "@herdmux_since"     // epoch seconds of the last state change
@@ -49,7 +49,7 @@ const (
 const Exit = "exit"
 
 // Agent names, as stored in OptAgent.
-var Agents = []string{"claude", "opencode", "pi"}
+var Agents = []string{"claude", "codex", "opencode", "pi"}
 
 // IsAgent reports whether name is a known agent name.
 func IsAgent(name string) bool {

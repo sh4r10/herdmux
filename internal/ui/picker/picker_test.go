@@ -300,7 +300,7 @@ func TestLaunchPromptKeys(t *testing.T) {
 	p := launchprompt.Prompt{Agents: config.DefaultAgents()}
 	m := newModel(&fake{agents: agents()}, Settings{}, p)
 	m, _ = press(t, m, "n")
-	if !strings.Contains(ansi.Strip(m.View()), "launch: c claude · o opencode · p pi · other key cancels") {
+	if !strings.Contains(ansi.Strip(m.View()), "launch: c claude · d codex · o opencode · p pi · other key cancels") {
 		t.Errorf("prompt: %s", ansi.Strip(m.View()))
 	}
 	m, cmd := press(t, m, "z") // cancels

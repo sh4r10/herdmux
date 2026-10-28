@@ -24,7 +24,7 @@ func reconciled(e *env) (*tmux.Client, error) {
 }
 
 func defineReport(fs *flag.FlagSet) func(*env, []string) error {
-	agent := fs.String("agent", "", "the agent's name: claude, opencode or pi (required)")
+	agent := fs.String("agent", "", "the agent's name: claude, codex, opencode or pi (required)")
 	pid := fs.Int("pid", 0, "the agent's pid (default: report's parent pid)")
 	pane := fs.String("pane", "", "the pane id (default: $TMUX_PANE)")
 	return func(e *env, args []string) error {

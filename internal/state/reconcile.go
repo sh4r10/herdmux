@@ -12,12 +12,14 @@ var semver = regexp.MustCompile(`^[0-9]+\.[0-9]+\.[0-9]+$`)
 
 // MatchCommand maps a #{pane_current_command} to an agent name, or "" for
 // none. A semver name is claude started by its versioned path.
-// `node` (pi's first ~1 s) matches nothing, so it is picked up on a later run.
+// `node` matches nothing: pi's first ~1 s is picked up on a later run, and
+// the npm codex wrapper (a node process leading the foreground group, with
+// the native `codex` under it) is seen only through its hooks.
 func MatchCommand(cmd string) string {
 	switch {
 	case cmd == "claude", semver.MatchString(cmd):
 		return "claude"
-	case cmd == "opencode", cmd == "pi":
+	case cmd == "codex", cmd == "opencode", cmd == "pi":
 		return cmd
 	}
 	return ""

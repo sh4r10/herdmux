@@ -1,6 +1,6 @@
 # herdmux
 
-An AI-agent awareness layer for tmux. herdmux runs on top of your existing tmux config and shows what every coding agent (claude, opencode, pi) in every session is doing: working, waiting for you, or finished. It flags the ones that need you and gets you to them in a keypress.
+An AI-agent awareness layer for tmux. herdmux runs on top of your existing tmux config and shows what every coding agent (claude, codex, opencode, pi) in every session is doing: working, waiting for you, or finished. It flags the ones that need you and gets you to them in a keypress.
 
 herdmux is a single Go binary. It never stays running: tmux key bindings, tmux hooks and the agents' own hooks call it, and it keeps all state in tmux pane options.
 
@@ -15,7 +15,7 @@ herdmux is a single Go binary. It never stays running: tmux key bindings, tmux h
 **Agent state**
 
 - Each agent pane has a state: `working`, `needs-input` (a permission prompt or a question), `done` (finished its turn) or `unknown` (an agent process recognised by name but not reporting).
-- claude reports through its hooks, opencode through a plugin, pi through an extension. Agents started without those still show up as `unknown`.
+- claude and codex report through their hooks, opencode through a plugin, pi through an extension. Agents started without those still show up as `unknown`.
 - State belongs to the pane, so moving a pane moves its agent. An agent that exits, dies, or is suspended or backgrounded is dropped.
 
 **Attention**
@@ -75,6 +75,7 @@ herdmux help [--all | command]
 | Agent | Integration | Installed to |
 |---|---|---|
 | [claude](https://docs.anthropic.com/en/docs/claude-code) | hooks running `herdmux hook claude` | `~/.claude/settings.json` |
+| [codex](https://developers.openai.com/codex) | hooks running `herdmux hook codex` (trust them once with `/hooks` in codex) | `~/.codex/hooks.json` |
 | [opencode](https://opencode.ai) | plugin | `~/.config/opencode/plugins/herdmux-agent-state.js` |
 | [pi](https://github.com/badlogic/pi-mono) | extension | `~/.pi/agent/extensions/herdmux-agent-state.ts` |
 
@@ -132,6 +133,10 @@ Config lives in `$HERDMUX_CONFIG_DIR` if set, else `$XDG_CONFIG_HOME/herdmux/` i
 name = "claude"          # window name, and `herdmux launch claude`
 key = "c"                # optional; picked from the name when omitted
 command = "claude"       # typed into the new window's shell
+
+[[agent]]
+name = "codex"
+command = "codex"
 
 [[agent]]
 name = "opencode"

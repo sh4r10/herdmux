@@ -16,5 +16,5 @@
 │                                                      │                                                               │
 │                                                      │                                                               │
 │ config.toml: agent "x": missing command; using the default agents                                                    │
-│ launch: c claude · o opencode · p pi · other key cancels                                                             │
+│ launch: c claude · d codex · o opencode · p pi · other key cancels                                                   │
 ╰──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯

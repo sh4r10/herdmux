@@ -15,6 +15,7 @@ import (
 
 	"github.com/sh4r10/herdmux/internal/integrations"
 	"github.com/sh4r10/herdmux/internal/integrations/claude"
+	"github.com/sh4r10/herdmux/internal/integrations/codex"
 	"github.com/sh4r10/herdmux/internal/mcp"
 	"github.com/sh4r10/herdmux/internal/tmux"
 	"github.com/sh4r10/herdmux/internal/tmuxtest"
@@ -41,6 +42,14 @@ case "$1 $2" in
 esac
 `
 
+const fakeCodex = `#!/bin/sh
+{ printf 'codex'; for a in "$@"; do printf ' [%s]' "$a"; done; printf '\n'; } >> LOG
+case "$1 $2" in
+"mcp add") /bin/mkdir -p "$HOME/.codex" && printf '[mcp_servers.herdmux]\ncommand = "herdmux"\nargs = ["mcp"]\n' >> "$HOME/.codex/config.toml" ;;
+"mcp remove") printf 'model = "gpt-5"\n' > "$HOME/.codex/config.toml" ;;
+esac
+`
+
 const fakePi = `#!/bin/sh
 { printf 'pi'; for a in "$@"; do printf ' [%s]' "$a"; done; printf '\n'; } >> LOG
 case "$1 $2" in
@@ -60,6 +69,7 @@ func newHome(t *testing.T) *fakeHome {
 	}
 	h.writeBin("herdmux", "#!/bin/sh\nexit 0\n")
 	h.writeBin("claude", strings.ReplaceAll(fakeClaude, "LOG", h.log))
+	h.writeBin("codex", strings.ReplaceAll(fakeCodex, "LOG", h.log))
 	h.writeBin("pi", strings.ReplaceAll(fakePi, "LOG", h.log))
 	h.env = map[string]string{"HOME": h.home, "XDG_CONFIG_HOME": filepath.Join(h.home, ".config"), "PATH": h.bin}
 	h.tmux = noServer(t)
@@ -229,6 +239,22 @@ run '~/.tmux/plugins/tpm/tpm'
   "zeta": 1.50
 }
 `
+	seedCodexHooks = `{
+  "description": "mine",
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "notify-send done"
+          }
+        ]
+      }
+    ]
+  }
+}
+`
 	seedOpencode = `{
   "$schema": "https://opencode.ai/config.json",
   "mcp": {
@@ -252,6 +278,8 @@ run '~/.tmux/plugins/tpm/tpm'
 func (h *fakeHome) seed() {
 	h.write(".config/tmux/tmux.conf", seedTmuxConf)
 	h.write(".claude/settings.json", seedSettings)
+	h.write(".codex/hooks.json", seedCodexHooks)
+	h.write(".codex/config.toml", "model = \"gpt-5\"\n")
 	h.write(".config/opencode/plugins/herdr-agent-state.js", seedHerdrPlug)
 	h.write(".config/opencode/tui.jsonc", seedTUI)
 	h.write(".config/opencode/opencode.json", seedOpencode)
@@ -347,6 +375,28 @@ func TestFreshInstall(t *testing.T) {
 	if !strings.Contains(settings, `"zeta": 1.50`) || strings.Contains(settings, "mcp__herdmux") {
 		t.Errorf("settings.json:\n%s", settings)
 	}
+	if !strings.Contains(out, "open codex and run /hooks") {
+		t.Errorf("no codex trust advice:\n%s", out)
+	}
+	ch := h.read(".codex/hooks.json")
+	cd, err := parseDoc([]byte(ch))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got := keys(cd.root); got != "description hooks" {
+		t.Errorf("hooks.json top-level keys = %s", got)
+	}
+	chooks, _ := cd.root.get("hooks")
+	if got := keys(chooks.(*object)); got != "Stop SessionStart UserPromptSubmit PreToolUse PostToolUse PermissionRequest Interrupt SessionEnd" {
+		t.Errorf("codex hook events = %s", got)
+	}
+	stop, _ = chooks.(*object).get("Stop")
+	if c := canonical(stop); !strings.Contains(c, "notify-send done") || strings.Index(c, "notify-send") > strings.Index(c, codex.Command) {
+		t.Errorf("codex Stop = %s, want the user's hook then ours", c)
+	}
+	if strings.Contains(ch, claude.Command) || h.read(".codex/config.toml") != "model = \"gpt-5\"\n" {
+		t.Errorf("codex files:\n%s", ch)
+	}
 
 	// Plugin files with their headers.
 	for rel, want := range map[string][]byte{
@@ -369,7 +419,8 @@ func TestFreshInstall(t *testing.T) {
 	}
 
 	// Backups: once, of the edited files only, never overwritten.
-	if h.read(".config/tmux/tmux.conf.herdmux.bak") != seedTmuxConf || h.read(".claude/settings.json.herdmux.bak") != seedSettings {
+	if h.read(".config/tmux/tmux.conf.herdmux.bak") != seedTmuxConf || h.read(".claude/settings.json.herdmux.bak") != seedSettings ||
+		h.read(".codex/hooks.json.herdmux.bak") != seedCodexHooks {
 		t.Error("backups don't hold the originals")
 	}
 	h.write(".config/tmux/tmux.conf", conf+"set -g status-position top\n") // block no longer last
@@ -501,7 +552,7 @@ func TestMCPRegistrations(t *testing.T) {
 	h.seed()
 	h.mustInstall(func(o *Options) { o.MCP = true })
 	log, _ := os.ReadFile(h.log)
-	if want := "claude [mcp] [add] [-s] [user] [herdmux] [--] [herdmux] [mcp]\npi [mcp] [add] [herdmux] [--exposure] [direct] [--] [herdmux] [mcp]\n"; string(log) != want {
+	if want := "claude [mcp] [add] [-s] [user] [herdmux] [--] [herdmux] [mcp]\ncodex [mcp] [add] [herdmux] [--] [herdmux] [mcp]\npi [mcp] [add] [herdmux] [--exposure] [direct] [--] [herdmux] [mcp]\n"; string(log) != want {
 		t.Errorf("agent CLI calls:\n%s\nwant:\n%s", log, want)
 	}
 	oc := h.read(".config/opencode/opencode.json")
@@ -534,11 +585,18 @@ func TestMCPRegistrations(t *testing.T) {
 
 	h.uninstall(false)
 	log, _ = os.ReadFile(h.log)
-	if !strings.HasSuffix(string(log), "claude [mcp] [remove] [-s] [user] [herdmux]\npi [mcp] [remove] [herdmux]\n") {
+	if !strings.HasSuffix(string(log), "claude [mcp] [remove] [-s] [user] [herdmux]\ncodex [mcp] [remove] [herdmux]\npi [mcp] [remove] [herdmux]\n") {
 		t.Errorf("uninstall's agent CLI calls:\n%s", log)
 	}
-	if h.read(".config/opencode/opencode.json") != seedOpencode || h.read(".claude/settings.json") != seedSettings {
-		t.Error("uninstall didn't restore opencode.json and settings.json")
+	if h.read(".config/opencode/opencode.json") != seedOpencode || h.read(".claude/settings.json") != seedSettings || h.read(".codex/hooks.json") != seedCodexHooks {
+		t.Error("uninstall didn't restore opencode.json, settings.json and hooks.json")
+	}
+	// Re-running install registers nothing twice.
+	h.mustInstall(func(o *Options) { o.MCP = true })
+	h.mustInstall(func(o *Options) { o.MCP = true })
+	log, _ = os.ReadFile(h.log)
+	if n := strings.Count(string(log), "[add]"); n != 6 {
+		t.Errorf("want 6 mcp add calls over three installs, got %d:\n%s", n, log)
 	}
 }
 
@@ -552,7 +610,7 @@ func TestMidwayFailureReportsDoneSteps(t *testing.T) {
 		t.Fatalf("install succeeded:\n%s", out)
 	}
 	for _, want := range []string{"claude MCP: claude mcp add -s user herdmux -- herdmux mcp: exit status 1: boom",
-		"done before it: tmux.conf; claude hooks; opencode plugin; pi extension; opencode MCP", "run the command again"} {
+		"done before it: tmux.conf; claude hooks; codex hooks; opencode plugin; pi extension; opencode MCP", "run the command again"} {
 		if !strings.Contains(err.Error(), want) {
 			t.Errorf("error lacks %q:\n%v", want, err)
 		}
@@ -577,10 +635,10 @@ func TestRoundTrip(t *testing.T) {
 		diffTrees(t, before, after, func(k string) bool {
 			// Backups are expected; the agent CLIs' own files and the dirs
 			// install made for the plugins may stay.
-			return strings.HasSuffix(k, bakSuffix) || k == ".claude.json" || k == ".pi/agent/mcp.json" ||
+			return strings.HasSuffix(k, bakSuffix) || k == ".claude.json" || k == ".pi/agent/mcp.json" || k == ".codex/config.toml" ||
 				(strings.HasSuffix(k, "/") && strings.HasPrefix(k, ".pi/"))
 		})
-		for _, k := range []string{".config/tmux/tmux.conf.herdmux.bak", ".claude/settings.json.herdmux.bak"} {
+		for _, k := range []string{".config/tmux/tmux.conf.herdmux.bak", ".claude/settings.json.herdmux.bak", ".codex/hooks.json.herdmux.bak"} {
 			if _, ok := after[k]; !ok {
 				t.Errorf("mcp=%v: backup %s missing", withMCP, k)
 			}

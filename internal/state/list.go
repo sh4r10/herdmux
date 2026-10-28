@@ -14,7 +14,7 @@ type Agent struct {
 	WindowName  string `json:"window_name"`  // #{window_name}
 	Window      string `json:"window"`       // #{window_id}, @N
 	Pane        string `json:"pane"`         // #{pane_id}, %N
-	Agent       string `json:"agent"`        // claude | opencode | pi
+	Agent       string `json:"agent"`        // claude | codex | opencode | pi
 	State       string `json:"state"`        // working | needs-input | done | unknown
 	Attention   string `json:"attention"`    // "" | needs-input | done
 	Since       int64  `json:"since"`        // epoch seconds of the last state change

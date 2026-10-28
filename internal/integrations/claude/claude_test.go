@@ -77,6 +77,9 @@ func TestDecide(t *testing.T) {
 		{Event{Name: "SessionStart", Source: "compact"}, Register},
 		{Event{Name: "UserPromptSubmit"}, Working},
 		{Event{Name: "PreToolUse"}, Working},
+		{Event{Name: "PreToolUse", ToolName: "Bash"}, Working},
+		{Event{Name: "PreToolUse", ToolName: "request_user_input"}, NeedsInput},
+		{Event{Name: "PostToolUse", ToolName: "request_user_input"}, Working},
 		{Event{Name: "PostToolUse"}, Working},
 		{Event{Name: "PostToolBatch"}, Working},
 		{Event{Name: "PreToolUse", AgentID: "a1"}, Ignore},
@@ -90,6 +93,8 @@ func TestDecide(t *testing.T) {
 		{Event{Name: "Stop"}, Done},
 		{Event{Name: "Stop", BackgroundTasks: bg}, Ignore},
 		{Event{Name: "StopFailure"}, Done},
+		{Event{Name: "Interrupt"}, Done},
+		{Event{Name: "Interrupt", AgentID: "a1"}, Ignore},
 		{Event{Name: "SessionEnd", Reason: "prompt_input_exit"}, Exit},
 		{Event{Name: "SessionEnd", Reason: "logout"}, Exit},
 		{Event{Name: "SessionEnd", Reason: "other"}, Exit},
@@ -164,6 +169,10 @@ func TestFindClaudeFakeChain(t *testing.T) {
 		42: {[]string{"sh", "sh"}, 32},
 		// no claude anywhere.
 		43: {[]string{"sh", "sh"}, 20},
+		// npm codex: node (the wrapper) runs the native codex, which runs the hook.
+		33: {[]string{"node", "node"}, 20},
+		34: {[]string{"codex", "codex"}, 33},
+		44: {[]string{"sh", "sh"}, 34},
 		// a loop must end.
 		60: {[]string{"x", "x"}, 61},
 		61: {[]string{"y", "y"}, 60},
@@ -172,9 +181,14 @@ func TestFindClaudeFakeChain(t *testing.T) {
 		p, ok := tree[pid]
 		return p.names, p.ppid, ok
 	}
-	for start, want := range map[int]int{50: 30, 40: 30, 30: 30, 41: 31, 42: 32, 43: 0, 60: 0, 99: 0, 1: 0, 0: 0} {
-		if got := findClaude(start, info); got != want {
-			t.Errorf("findClaude(%d) = %d, want %d", start, got, want)
+	for start, want := range map[int]int{50: 30, 40: 30, 30: 30, 41: 31, 42: 32, 43: 0, 44: 0, 60: 0, 99: 0, 1: 0, 0: 0} {
+		if got := find(start, "claude", info); got != want {
+			t.Errorf("find(%d, claude) = %d, want %d", start, got, want)
+		}
+	}
+	for start, want := range map[int]int{44: 34, 34: 34, 33: 0, 50: 0} {
+		if got := find(start, "codex", info); got != want {
+			t.Errorf("find(%d, codex) = %d, want %d", start, got, want)
 		}
 	}
 }
@@ -208,8 +222,11 @@ func TestFindClaudeRealChain(t *testing.T) {
 			_ = p.Kill()
 		}
 	})
-	if got := FindClaude(sleepPID); got != claudePID {
-		t.Fatalf("FindClaude(sleep %d) = %d, want the claude-named bash %d", sleepPID, got, claudePID)
+	if got := Find(sleepPID, "claude"); got != claudePID {
+		t.Fatalf("Find(sleep %d, claude) = %d, want the claude-named bash %d", sleepPID, got, claudePID)
+	}
+	if got := Find(sleepPID, "codex"); got != 0 {
+		t.Fatalf("Find(sleep %d, codex) = %d, want 0", sleepPID, got)
 	}
 }
 

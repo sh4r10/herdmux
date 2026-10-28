@@ -1,0 +1,28 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {"hooks": [{"type": "command", "command": "herdmux hook codex"}]}
+    ],
+    "UserPromptSubmit": [
+      {"hooks": [{"type": "command", "command": "herdmux hook codex"}]}
+    ],
+    "PreToolUse": [
+      {"hooks": [{"type": "command", "command": "herdmux hook codex"}]}
+    ],
+    "PostToolUse": [
+      {"hooks": [{"type": "command", "command": "herdmux hook codex"}]}
+    ],
+    "PermissionRequest": [
+      {"hooks": [{"type": "command", "command": "herdmux hook codex"}]}
+    ],
+    "Stop": [
+      {"hooks": [{"type": "command", "command": "herdmux hook codex"}]}
+    ],
+    "Interrupt": [
+      {"hooks": [{"type": "command", "command": "herdmux hook codex"}]}
+    ],
+    "SessionEnd": [
+      {"hooks": [{"type": "command", "command": "herdmux hook codex"}]}
+    ]
+  }
+}

@@ -39,6 +39,7 @@ var Actions = []string{"picker", "next-attention", "organiser", "launch", "sessi
 func DefaultAgents() []Agent {
 	return []Agent{
 		{Name: "claude", Key: "c", Command: "claude"},
+		{Name: "codex", Key: "d", Command: "codex"},
 		{Name: "opencode", Key: "o", Command: "opencode"},
 		{Name: "pi", Key: "p", Command: "pi"},
 	}

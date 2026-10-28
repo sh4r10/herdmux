@@ -2,6 +2,7 @@
 │ launch in ~/src/api              │
 │                                  │
 │  c  claude                       │
+│  d  codex                        │
 │  o  opencode                     │
 │  p  pi                           │
 │                                  │

@@ -50,7 +50,7 @@ func TestNoArgsPrintsHelp(t *testing.T) {
 func TestVersion(t *testing.T) {
 	t.Parallel()
 	r := runCLI(t, nil, "--version")
-	if r.code != 0 || r.stdout != "herdmux 1.4.0\n" {
+	if r.code != 0 || r.stdout != "herdmux 1.5.0\n" {
 		t.Fatalf("code=%d stdout=%q", r.code, r.stdout)
 	}
 }
@@ -59,7 +59,7 @@ func TestHiddenVerbsOnlyInHelpAll(t *testing.T) {
 	t.Parallel()
 	def := runCLI(t, nil, "help").stdout
 	all := runCLI(t, nil, "help", "--all").stdout
-	for _, name := range []string{"hook claude", "tmux-hook <event>"} {
+	for _, name := range []string{"hook claude|codex", "tmux-hook <event>"} {
 		if strings.Contains(def, name) {
 			t.Errorf("default help shows hidden %q", name)
 		}
@@ -106,7 +106,7 @@ func TestTmuxVerbsExit2OutsideTmux(t *testing.T) {
 func TestNeverFailVerbsExit0AndLog(t *testing.T) {
 	t.Parallel()
 	cases := [][]string{
-		{"hook", "codex"}, // `hook claude` without HERDMUX=1 is silent (hook_cli_test.go)
+		{"hook", "gemini"}, // `hook claude|codex` without HERDMUX=1 is silent (hook_cli_test.go)
 		{"report", "working", "--agent", "claude"},
 		{"report", "--bogus-flag"},
 		{"tmux-hook", "pane-focus-in"},

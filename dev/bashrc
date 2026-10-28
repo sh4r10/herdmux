@@ -1,7 +1,7 @@
 # The shell rc for make dev panes (dev/run.sh sets default-command to
 # `bash --rcfile` this file): the developer's usual login startup, then .dev/bin
 # and dev/shims back in front of PATH. Startup files often prepend dirs like
-# ~/.local/bin or ~/.opencode/bin (where the real claude, pi and opencode
+# ~/.local/bin or ~/.opencode/bin (where the real claude, codex, pi and opencode
 # live), which would otherwise shadow the shims.
 [ -f ~/.profile ] && . ~/.profile
 __herdmux_dev_root=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)

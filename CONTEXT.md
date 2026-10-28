@@ -9,7 +9,7 @@ A tmux session; in practice one per project, created from the project's director
 _Avoid_: workspace, project (when meaning the tmux object)
 
 **Agent**:
-A pane in which an agent CLI (claude, opencode or pi) is running. Belongs to the **Session** its pane currently sits in; moving the pane moves the agent. There is no registry spanning sessions.
+A pane in which an agent CLI (claude, codex, opencode or pi) is running. Belongs to the **Session** its pane currently sits in; moving the pane moves the agent. There is no registry spanning sessions.
 _Avoid_: bot, worker, assistant
 
 **Agent state**:

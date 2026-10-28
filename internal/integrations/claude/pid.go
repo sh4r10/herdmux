@@ -13,18 +13,19 @@ import (
 // maxDepth bounds the walk up the process tree.
 const maxDepth = 16
 
-// FindClaude walks up the process tree from pid (the hook's parent; claude
-// may run the hook under `sh -c`) to the claude process, and returns its pid,
-// or 0 if no ancestor is claude. A process is claude when its argv[0]
-// basename (what tmux's #{pane_current_command} shows) or its comm matches
-// claude by state.MatchCommand: "claude", or a version number such as
-// "2.1.301" when claude runs from its versioned path.
-func FindClaude(pid int) int { return findClaude(pid, readProc) }
+// Find walks up the process tree from pid (the hook's parent; the agent may
+// run the hook under `sh -c`) to the agent process, and returns its pid, or
+// 0 if no ancestor is that agent. A process is the agent when its argv[0]
+// basename (what tmux's #{pane_current_command} shows) or its comm maps to
+// agent by state.MatchCommand: "claude", or a version number such as
+// "2.1.301" when claude runs from its versioned path; "codex" (the native
+// binary, also under the npm wrapper's node process).
+func Find(pid int, agent string) int { return find(pid, agent, readProc) }
 
 // procInfo returns a process's names (argv[0] basename, comm) and its parent.
 type procInfo func(pid int) (names []string, ppid int, ok bool)
 
-func findClaude(pid int, info procInfo) int {
+func find(pid int, agent string, info procInfo) int {
 	for range maxDepth {
 		if pid <= 1 {
 			return 0
@@ -34,7 +35,7 @@ func findClaude(pid int, info procInfo) int {
 			return 0
 		}
 		for _, n := range names {
-			if state.MatchCommand(n) == "claude" {
+			if state.MatchCommand(n) == agent {
 				return pid
 			}
 		}

@@ -50,7 +50,7 @@ func ShortDir(dir, home string) string {
 }
 
 // Inline is the one-line form for another popup's footer:
-// "launch: c claude · o opencode · p pi", keys in accent.
+// "launch: c claude · d codex · o opencode · p pi", keys in accent.
 func (p Prompt) Inline(st *style.Styles) string {
 	if len(p.Agents) == 0 {
 		return st.Accent().Render("launch: ") + st.Muted().Render("no agents found on PATH")

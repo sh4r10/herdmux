@@ -12,7 +12,7 @@ import (
 // its arguments, and what `hook claude` builds from a hook event.
 type Report struct {
 	Pane  string    // pane id, %N (the CLI defaults it to $TMUX_PANE)
-	Agent string    // claude | opencode | pi; required, never inferred
+	Agent string    // claude | codex | opencode | pi; required, never inferred
 	Event string    // working | needs-input | done | exit
 	PID   int       // the agent's pid (the CLI defaults it to its parent pid)
 	Now   time.Time // the report's time; zero means time.Now()
@@ -48,7 +48,7 @@ func Apply(c *tmux.Client, r Report) (Outcome, error) {
 		return Outcome{}, err
 	}
 	if !IsAgent(r.Agent) {
-		return Outcome{}, fmt.Errorf("unknown agent %q (want claude, opencode or pi)", r.Agent)
+		return Outcome{}, fmt.Errorf("unknown agent %q (want claude, codex, opencode or pi)", r.Agent)
 	}
 	if !IsEvent(r.Event) {
 		return Outcome{}, fmt.Errorf("unknown state %q (want working, needs-input, done or exit)", r.Event)

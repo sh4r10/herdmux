@@ -1,6 +1,7 @@
 // Package install implements `herdmux install` and `herdmux uninstall`: the
-// marked block at the end of tmux.conf, the claude hooks, the versioned
-// opencode and pi integration files and, with --mcp, the MCP registrations.
+// marked block at the end of tmux.conf, the claude and codex hooks, the
+// versioned opencode and pi integration files and, with --mcp, the MCP
+// registrations.
 // Both change files (and run the agents' own `mcp add/remove`) only; neither
 // touches a running tmux server beyond install's read-only PATH check.
 //
@@ -70,6 +71,11 @@ func Install(o Options) error {
 		"  tmux source-file %s\n"+
 		"or by restarting the server. Agents already running don't have HERDMUX=1 and\n"+
 		"show as unknown until you relaunch them.\n", p.tilde(p.TmuxConf))
+	for _, s := range steps {
+		if s.name == "codex hooks" && s.new != nil {
+			fmt.Fprintf(o.Out, "codex runs new hooks only once you trust them: open codex and run /hooks.\n")
+		}
+	}
 	return nil
 }
 

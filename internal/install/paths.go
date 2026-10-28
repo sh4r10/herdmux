@@ -20,6 +20,8 @@ type Paths struct {
 	TmuxConf       string // $XDG_CONFIG_HOME/tmux/tmux.conf, default ~/.config/tmux/tmux.conf
 	ClaudeSettings string // ~/.claude/settings.json (hooks; permissions with --mcp)
 	ClaudeJSON     string // ~/.claude.json: read only, to see whether `claude mcp add` already ran
+	CodexHooks     string // ~/.codex/hooks.json (hooks)
+	CodexConfig    string // ~/.codex/config.toml: read only, to see whether `codex mcp add` already ran
 	OpencodePlugin string // $XDG_CONFIG_HOME/opencode/plugins/herdmux-agent-state.js
 	OpencodeJSON   string // $XDG_CONFIG_HOME/opencode/opencode.json (--mcp)
 	PiExtension    string // ~/.pi/agent/extensions/herdmux-agent-state.ts
@@ -47,13 +49,15 @@ func Resolve(getenv func(string) string) (Paths, error) {
 		TmuxConf:       filepath.Join(xdg, "tmux", "tmux.conf"),
 		ClaudeSettings: filepath.Join(home, ".claude", "settings.json"),
 		ClaudeJSON:     filepath.Join(home, ".claude.json"),
+		CodexHooks:     filepath.Join(home, ".codex", "hooks.json"),
+		CodexConfig:    filepath.Join(home, ".codex", "config.toml"),
 		OpencodePlugin: filepath.Join(xdg, "opencode", "plugins", integrations.OpencodePluginName),
 		OpencodeJSON:   filepath.Join(xdg, "opencode", "opencode.json"),
 		PiExtension:    filepath.Join(home, ".pi", "agent", "extensions", integrations.PiExtensionName),
 		PiMCP:          filepath.Join(home, ".pi", "agent", "mcp.json"),
 		ConfigDir:      cfg,
 	}
-	for _, f := range []string{p.TmuxConf, p.ClaudeSettings, p.ClaudeJSON, p.OpencodePlugin, p.OpencodeJSON, p.PiExtension, p.PiMCP, p.ConfigDir} {
+	for _, f := range []string{p.TmuxConf, p.ClaudeSettings, p.ClaudeJSON, p.CodexHooks, p.CodexConfig, p.OpencodePlugin, p.OpencodeJSON, p.PiExtension, p.PiMCP, p.ConfigDir} {
 		if err := guard(f); err != nil {
 			return Paths{}, err
 		}

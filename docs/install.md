@@ -2,7 +2,7 @@
 
 These steps put herdmux on your real tmux and agents. Do them in order.
 
-herdmux is built and tested against tmux 3.5a. Building it needs Go 1.27 (`go.mod` pulls the exact toolchain). It reports state for claude, opencode and pi.
+herdmux is built and tested against tmux 3.5a. Building it needs Go 1.27 (`go.mod` pulls the exact toolchain). It reports state for claude, codex, opencode and pi.
 
 ## 1. Build the binary and put it on PATH
 
@@ -49,6 +49,7 @@ install writes:
 |---|---|
 | `~/.config/tmux/tmux.conf` (`$XDG_CONFIG_HOME/tmux/tmux.conf`) | a marked block at the very end, after any TPM line: `# >>> herdmux >>>` / `run-shell 'herdmux init'` / `# <<< herdmux <<<` |
 | `~/.claude/settings.json` | claude hook entries with the command `herdmux hook claude`, added next to your own hooks |
+| `~/.codex/hooks.json` | codex hook entries with the command `herdmux hook codex`, added next to your own hooks. codex runs new hooks only after you trust them: open codex once and run `/hooks`. |
 | `~/.config/opencode/plugins/herdmux-agent-state.js` | the opencode plugin. Other plugins and `tui.jsonc` are left alone. |
 | `~/.pi/agent/extensions/herdmux-agent-state.ts` | the pi extension. It does nothing inside pi-subagents children. |
 
@@ -61,10 +62,11 @@ The hooks, the plugin and the extension stay off unless `HERDMUX=1` is set, and 
 | Agent | Command or entry |
 |---|---|
 | claude | `claude mcp add -s user herdmux -- herdmux mcp`, plus `permissions.allow` for the four read tools (`mcp__herdmux__list_colorschemes`, `list_agents`, `get_colorscheme`, `read_config`) in `~/.claude/settings.json`, so reading never prompts |
+| codex | `codex mcp add herdmux -- herdmux mcp` (writes `[mcp_servers.herdmux]` to `~/.codex/config.toml`) |
 | opencode | `"mcp": {"herdmux": {"type": "local", "command": ["herdmux", "mcp"], "environment": {}, "enabled": true}}` in `~/.config/opencode/opencode.json` |
 | pi | `pi mcp add herdmux --exposure direct -- herdmux mcp` (writes `~/.pi/agent/mcp.json`; `direct` exposes the tools to the model as ordinary tools) |
 
-`--mcp` needs `claude` and `pi` on PATH.
+`--mcp` needs `claude`, `codex` and `pi` on PATH.
 
 ## 4. Reload tmux
 
@@ -102,8 +104,9 @@ uninstall removes exactly what install added:
 
 - the tmux.conf block
 - the hook entries whose command is `herdmux hook claude`, and the four MCP pre-allows
+- the hook entries whose command is `herdmux hook codex`
 - both plugin files
 - the opencode `mcp.herdmux` entry
-- `claude mcp remove -s user herdmux` and `pi mcp remove herdmux`, if those servers are registered
+- `claude mcp remove -s user herdmux`, `codex mcp remove herdmux` and `pi mcp remove herdmux`, if those servers are registered
 
 It keeps the config dir, `~/.config/herdmux` or `$XDG_CONFIG_HOME/herdmux` (config.toml, the saved colorscheme, your schemes) unless you pass `--purge`, and it leaves the `.herdmux.bak` backups in place. A running server keeps `HERDMUX=1` and the layer (its keys, hooks and styles) until you restart it with `tmux kill-server`: a reload (`tmux source-file`) doesn't unset anything `herdmux init` set, and there is no live teardown verb. Undoing step 2 is up to you.

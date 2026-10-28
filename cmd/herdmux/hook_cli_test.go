@@ -15,10 +15,11 @@ import (
 	"github.com/sh4r10/herdmux/internal/tmuxtest"
 )
 
-// Tests of `herdmux hook claude`. The replay tests feed the
-// recorded fixtures (internal/integrations/claude/testdata) one event at a
-// time into the CLI, in-process, with the hook's parent pid set to a fake
-// claude process in the pane, and check the pane's state after each step.
+// Tests of `herdmux hook claude` and `herdmux hook codex`. The replay tests
+// feed the recorded fixtures (internal/integrations/claude/testdata) one
+// event at a time into the CLI, in-process, with the hook's parent pid set
+// to a fake claude process in the pane, and check the pane's state after
+// each step.
 
 const fixtures = "../../internal/integrations/claude/testdata"
 
@@ -27,8 +28,13 @@ const fixtures = "../../internal/integrations/claude/testdata"
 // and that process's pid.
 func fakeClaude(t *testing.T, s *tmuxtest.Server) (pane string, pid int) {
 	t.Helper()
-	pane = s.Tmux("new-window", "-d", "-P", "-F", "#{pane_id}", "exec bash -c 'exec -a claude sleep 100000'")
-	s.Eventually(2*time.Second, "fake claude", func() bool { return s.Display(pane, "#{pane_current_command}") == "claude" })
+	return fakeAgent(t, s, "claude")
+}
+
+func fakeAgent(t *testing.T, s *tmuxtest.Server, name string) (pane string, pid int) {
+	t.Helper()
+	pane = s.Tmux("new-window", "-d", "-P", "-F", "#{pane_id}", "exec bash -c 'exec -a "+name+" sleep 100000'")
+	s.Eventually(2*time.Second, "fake "+name, func() bool { return s.Display(pane, "#{pane_current_command}") == name })
 	pid, err := strconv.Atoi(s.Display(pane, "#{pane_pid}"))
 	if err != nil {
 		t.Fatal(err)
@@ -40,13 +46,18 @@ func fakeClaude(t *testing.T, s *tmuxtest.Server) (pane string, pid int) {
 // from pane, with HERDMUX=1 and the event on stdin.
 func hookInProcess(t *testing.T, s *tmuxtest.Server, pane string, ppid int, event string) {
 	t.Helper()
+	hookAgentInProcess(t, s, "claude", pane, ppid, event)
+}
+
+func hookAgentInProcess(t *testing.T, s *tmuxtest.Server, agent, pane string, ppid int, event string) {
+	t.Helper()
 	vars := map[string]string{"HERDMUX": "1"}
 	for _, kv := range s.Env(pane) {
 		k, v, _ := strings.Cut(kv, "=")
 		vars[k] = v
 	}
 	var out, errb bytes.Buffer
-	code := run([]string{"hook", "claude"}, &env{
+	code := run([]string{"hook", agent}, &env{
 		stdin:  strings.NewReader(event),
 		stdout: &out,
 		stderr: &errb,
@@ -54,7 +65,65 @@ func hookInProcess(t *testing.T, s *tmuxtest.Server, pane string, ppid int, even
 		ppid:   ppid,
 	})
 	if code != 0 || out.Len() != 0 || errb.Len() != 0 {
-		t.Fatalf("hook claude: code=%d stdout=%q stderr=%q", code, out.String(), errb.String())
+		t.Fatalf("hook %s: code=%d stdout=%q stderr=%q", agent, code, out.String(), errb.String())
+	}
+}
+
+// TestHookCodex: codex events (hand-written from the codex hooks reference:
+// the same protocol as claude's, with Interrupt and no Notification or
+// background_tasks) drive a codex-named process through a turn, a
+// permission prompt, a question (request_user_input), an interrupt and
+// exit. A claude process in the pane is not codex: the hook logs and
+// writes nothing.
+func TestHookCodex(t *testing.T) {
+	t.Parallel()
+	s := tmuxtest.New(t)
+	pane, pid := fakeAgent(t, s, "codex")
+	ev := func(js string) { t.Helper(); hookAgentInProcess(t, s, "codex", pane, pid, js) }
+	want := func(st string) {
+		t.Helper()
+		if got := paneState(s, pane); got != st {
+			t.Fatalf("%s, want %s", got, st)
+		}
+	}
+	common := `"session_id":"s1","transcript_path":null,"cwd":"/tmp","model":"gpt-5","permission_mode":"default",`
+	ev(`{` + common + `"hook_event_name":"SessionStart","source":"startup"}`)
+	want("done/")
+	if got := s.PaneOption(pane, state.OptAgent) + " " + s.PaneOption(pane, state.OptPID); got != "codex "+strconv.Itoa(pid) {
+		t.Fatalf("agent/pid = %q", got)
+	}
+	ev(`{` + common + `"hook_event_name":"UserPromptSubmit","turn_id":"t1","prompt":"x"}`)
+	want("working/")
+	ev(`{` + common + `"hook_event_name":"PreToolUse","turn_id":"t1","tool_name":"Bash","tool_use_id":"c1","tool_input":{"command":"ls"}}`)
+	ev(`{` + common + `"hook_event_name":"PermissionRequest","turn_id":"t1","tool_name":"Bash","tool_input":{"command":"ls"}}`)
+	want("needs-input/needs-input")
+	ev(`{` + common + `"hook_event_name":"PostToolUse","turn_id":"t1","tool_name":"Bash","tool_use_id":"c1","tool_input":{},"tool_response":{}}`)
+	want("working/needs-input")
+	ev(`{` + common + `"hook_event_name":"PreToolUse","turn_id":"t1","tool_name":"request_user_input","tool_use_id":"c2","tool_input":{}}`)
+	want("needs-input/needs-input")
+	ev(`{` + common + `"hook_event_name":"PostToolUse","turn_id":"t1","tool_name":"request_user_input","tool_use_id":"c2","tool_input":{},"tool_response":{}}`)
+	want("working/needs-input")
+	ev(`{` + common + `"hook_event_name":"Stop","turn_id":"t1","stop_hook_active":false,"last_assistant_message":"OK"}`)
+	want("done/done")
+	ev(`{` + common + `"hook_event_name":"UserPromptSubmit","turn_id":"t2","prompt":"y"}`)
+	want("working/done")
+	ev(`{` + common + `"hook_event_name":"Interrupt","turn_id":"t2"}`)
+	want("done/done")
+	ev(`{` + common + `"hook_event_name":"SessionEnd","reason":"other"}`)
+	want("-")
+	if log, err := os.ReadFile(s.LogPath()); err == nil {
+		t.Errorf("hook logged:\n%s", log)
+	}
+
+	// A claude in the pane is no codex: the hook writes nothing (reconcile
+	// alone marks the claude-named process unknown) and logs.
+	cpane, cpid := fakeClaude(t, s)
+	hookAgentInProcess(t, s, "codex", cpane, cpid, `{"hook_event_name":"SessionStart","source":"startup"}`)
+	if got := s.PaneOption(cpane, state.OptAgent) + " " + paneState(s, cpane); got != "claude unknown/" {
+		t.Errorf("codex hook under claude: %s, want claude unknown/", got)
+	}
+	if log, _ := os.ReadFile(s.LogPath()); !strings.Contains(string(log), "no codex process above pid") {
+		t.Errorf("log lacks the missing-codex line:\n%s", log)
 	}
 }
 

@@ -12,19 +12,22 @@ import (
 // and the last assistant message, so allow plenty.
 const maxHookInput = 16 << 20
 
-// defineHook is `herdmux hook claude`: one claude hook event
-// on stdin becomes a state report for $TMUX_PANE, in-process. It is hidden and
-// neverFail: it prints nothing, always exits 0 and logs errors.
+// defineHook is `herdmux hook claude|codex`: one hook event on stdin becomes
+// a state report for $TMUX_PANE, in-process. codex's hooks speak claude's
+// protocol, so both go through internal/integrations/claude with the agent
+// name. It is hidden and neverFail: it prints nothing, always exits 0 and
+// logs errors.
 //
 // The gate: without HERDMUX=1 and TMUX_PANE it does nothing at all (no tmux
-// call, no log line), so the globally installed hooks stay silent in claude
+// call, no log line), so the globally installed hooks stay silent in agent
 // sessions outside the layer.
 func defineHook(fs *flag.FlagSet) func(*env, []string) error {
 	return func(e *env, args []string) error {
-		if len(args) != 1 || args[0] != "claude" {
-			return usagef("want: hook claude")
+		if len(args) != 1 || (args[0] != "claude" && args[0] != "codex") {
+			return usagef("want: hook claude|codex")
 		}
-		// Drain stdin even when gated off, so claude never writes into a closed pipe.
+		agent := args[0]
+		// Drain stdin even when gated off, so the agent never writes into a closed pipe.
 		in, err := io.ReadAll(io.LimitReader(e.stdin, maxHookInput))
 		if e.getenv("HERDMUX") != "1" || e.getenv("TMUX_PANE") == "" {
 			return nil
@@ -43,11 +46,11 @@ func defineHook(fs *flag.FlagSet) func(*env, []string) error {
 		if claude.Decide(ev) == claude.Ignore {
 			return nil
 		}
-		pid := claude.FindClaude(e.ppid)
+		pid := claude.Find(e.ppid, agent)
 		if pid == 0 {
-			return fmt.Errorf("%s: no claude process above pid %d", ev.Name, e.ppid)
+			return fmt.Errorf("%s: no %s process above pid %d", ev.Name, agent, e.ppid)
 		}
-		o, err := claude.Handle(c, e.getenv("TMUX_PANE"), pid, ev)
+		o, err := claude.Handle(c, agent, e.getenv("TMUX_PANE"), pid, ev)
 		if err == nil {
 			ring(e, c, o)
 		}

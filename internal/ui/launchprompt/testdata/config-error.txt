@@ -2,6 +2,7 @@
 │ launch in ~                                                       │
 │                                                                   │
 │  c  claude                                                        │
+│  d  codex                                                         │
 │  o  opencode                                                      │
 │  p  pi                                                            │
 │                                                                   │
