@@ -21,8 +21,8 @@ done
 # One entry per event of hooks.json (TestHooks checks the list).
 hook='[{hooks=[{type="command",command="herdmux hook codex"}]}]'
 # The shared background server would run the hooks with a stale TMUX_PANE
-# (see install's codex daemon step). If one is running, codex asks to
-# restart it on launch.
+# (see install's codex daemon step); one already running still serves this
+# launch, so stop it first: codex app-server daemon stop.
 args=(--dangerously-bypass-hook-trust -c features.daemon_auto_start=false)
 for ev in SessionStart UserPromptSubmit PreToolUse PostToolUse PermissionRequest Stop Interrupt SessionEnd; do
   args+=(-c "hooks.$ev=$hook")

@@ -50,7 +50,7 @@ install writes:
 | `~/.config/tmux/tmux.conf` (`$XDG_CONFIG_HOME/tmux/tmux.conf`) | a marked block at the very end, after any TPM line: `# >>> herdmux >>>` / `run-shell 'herdmux init'` / `# <<< herdmux <<<` |
 | `~/.claude/settings.json` | claude hook entries with the command `herdmux hook claude`, added next to your own hooks |
 | `~/.codex/hooks.json` | codex hook entries with the command `herdmux hook codex`, added next to your own hooks. codex runs new hooks only after you trust them: open codex once and run `/hooks`. |
-| `~/.codex/config.toml` | `features.daemon_auto_start = false`, written by `codex features disable daemon_auto_start` (only if the file exists, so codex must be on PATH then). codex's shared background server runs hooks with the environment of whichever launch started it, so herdmux would see a stale `TMUX_PANE`. If a server is running, the next codex launch asks to restart it: choose restart. |
+| `~/.codex/config.toml` | `features.daemon_auto_start = false`, written by `codex features disable daemon_auto_start` (only if the file exists, so codex must be on PATH then). codex's shared background server runs hooks with the environment of whichever launch started it, so herdmux would see a stale `TMUX_PANE`. A server already running still serves new launches: stop it with `codex app-server daemon stop` (this interrupts the codex sessions using it), then relaunch codex. |
 | `~/.config/opencode/plugins/herdmux-agent-state.js` | the opencode plugin. Other plugins and `tui.jsonc` are left alone. |
 | `~/.pi/agent/extensions/herdmux-agent-state.ts` | the pi extension. It does nothing inside pi-subagents children. |
 

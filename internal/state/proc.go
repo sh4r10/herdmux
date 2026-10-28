@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 )
@@ -43,6 +44,40 @@ func readStat(pid int) (procStat, error) {
 		return procStat{}, errors.New("malformed stat")
 	}
 	return procStat{state: f[0][0], ppid: ppid, pgrp: pgrp, tpgid: tpgid}, nil
+}
+
+// childNamed reports whether some child of ppid is named name: its comm or
+// its argv[0] basename (what tmux's #{pane_current_command} shows).
+func childNamed(ppid int, name string) bool {
+	ents, err := os.ReadDir("/proc")
+	if err != nil {
+		return false
+	}
+	for _, e := range ents {
+		pid, err := strconv.Atoi(e.Name())
+		if err != nil {
+			continue
+		}
+		b, err := os.ReadFile("/proc/" + e.Name() + "/stat")
+		if err != nil {
+			continue
+		}
+		s := string(b)
+		i, j := strings.IndexByte(s, '('), strings.LastIndexByte(s, ')')
+		if i < 0 || j < i || strings.Fields(s[j+1:])[1] != strconv.Itoa(ppid) {
+			continue
+		}
+		if s[i+1:j] == name {
+			return true
+		}
+		if cmdline, err := os.ReadFile("/proc/" + strconv.Itoa(pid) + "/cmdline"); err == nil {
+			argv0, _, _ := strings.Cut(string(cmdline), "\x00")
+			if filepath.Base(argv0) == name {
+				return true
+			}
+		}
+	}
+	return false
 }
 
 // alive reports whether pid is a running (non-zombie) process.

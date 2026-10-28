@@ -11,7 +11,7 @@ import (
 )
 
 // version is herdmux's release.
-const version = "1.5.1"
+const version = "1.5.2"
 
 // env is everything a verb may touch of the outside world. Verbs read the
 // environment only through getenv, so tests can run them in-process and in

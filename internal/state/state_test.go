@@ -1,7 +1,9 @@
 package state
 
 import (
+	"os"
 	"os/exec"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"syscall"
@@ -268,6 +270,29 @@ func TestReconcileUnknownByCommand(t *testing.T) {
 		if got := opts(t, s, pane); got != "||||" {
 			t.Errorf("%s after kill: %q", tc.name, got)
 		}
+	}
+}
+
+// An npm-installed codex shows as node (its wrapper) in pane_current_command;
+// the codex child makes the pane an unknown codex.
+func TestReconcileNodeWrapsCodex(t *testing.T) {
+	t.Parallel()
+	s := tmuxtest.New(t)
+	codex := filepath.Join(t.TempDir(), "codex") // a sleep whose comm and argv[0] are codex
+	if err := os.Symlink("/bin/sleep", codex); err != nil {
+		t.Fatal(err)
+	}
+	pane := s.Tmux("new-window", "-d", "-P", "-F", "#{pane_id}")
+	s.Tmux("send-keys", "-t", pane, `bash -c 'exec -a node bash -c "`+codex+` 100000; :"'`, "Enter")
+	s.Eventually(2*time.Second, "node in the foreground", func() bool {
+		return s.Display(pane, "#{pane_current_command}") == "node"
+	})
+	s.Eventually(2*time.Second, "codex under node", func() bool {
+		reconcile(t, s)
+		return s.PaneOption(pane, OptAgent) == "codex"
+	})
+	if got := s.PaneOption(pane, OptState); got != Unknown {
+		t.Errorf("state %q, want unknown", got)
 	}
 }
 

@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.5.2 — 2026-10-28
+
+- Fixed: install's codex advice said to restart the background server; codex keeps using a running one even with `daemon_auto_start` off. The advice (and the hook's log line) now say `codex app-server daemon stop`.
+- Fixed: an npm-installed codex showed as `node` with no state until its first prompt (codex fires SessionStart only then). Reconcile now recognises a `codex` child under the node wrapper and marks the pane an unknown codex.
+
 ## 1.5.1 — 2026-10-28
 
 - Fixed: codex state never reached the status bar. codex's shared background server (`daemon_auto_start`, on by default) runs the hooks with the environment of whichever launch started it, so herdmux reported to a stale pane. `herdmux install` now runs `codex features disable daemon_auto_start` (uninstall re-enables it), the dev shim passes the same override, and a hook run by the server logs what to do instead of "pane not found".

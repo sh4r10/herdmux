@@ -67,6 +67,13 @@ func Reconcile(c *tmux.Client) error {
 			w.unsetAll(pane)
 		}
 		want := MatchCommand(cmd)
+		if want == "" && cmd == "node" {
+			// An npm-installed codex: its node wrapper leads the foreground
+			// group and the native binary is the wrapper's child.
+			if fg, err := foregroundPgrp(panePID); err == nil && childNamed(fg, "codex") {
+				want = "codex"
+			}
+		}
 		switch {
 		case want == "" && (agent != "" || st != ""):
 			w.unsetAll(pane)

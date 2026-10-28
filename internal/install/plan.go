@@ -513,7 +513,9 @@ func codexDaemonOff(b []byte) bool {
 // started it, serves every later launch and runs the hooks itself: with its
 // own environment, so TMUX_PANE is the first launch's pane, and from its own
 // process, so the pid walk finds the server instead of the pane's codex.
-// Off, each codex runs its hooks in-process. Planned only once codex has
+// Off, each codex runs its hooks in-process, but a server already running
+// still serves new launches until `codex app-server daemon stop` (install's
+// closing advice). Planned only once codex has
 // written its config.toml (so codex is installed); uninstall turns the
 // server back on when it is off.
 func codexDaemonStep(p Paths, install bool) step {

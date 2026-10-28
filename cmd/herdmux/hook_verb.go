@@ -56,7 +56,7 @@ func defineHook(fs *flag.FlagSet) func(*env, []string) error {
 		// codex's shared background server runs hooks with the environment
 		// (TMUX_PANE) of whichever launch started it; install turns it off.
 		if b, _ := os.ReadFile("/proc/" + strconv.Itoa(pid) + "/cmdline"); bytes.Contains(b, []byte("--managed-daemon")) {
-			return fmt.Errorf("%s: the hook ran in codex's background server (pid %d), not in the pane's codex; run `codex features disable daemon_auto_start` (herdmux install does) and relaunch codex", ev.Name, pid)
+			return fmt.Errorf("%s: the hook ran in codex's background server (pid %d), not in the pane's codex; run `codex features disable daemon_auto_start` (herdmux install does), then `codex app-server daemon stop` and relaunch codex", ev.Name, pid)
 		}
 		o, err := claude.Handle(c, agent, e.getenv("TMUX_PANE"), pid, ev)
 		if err == nil {

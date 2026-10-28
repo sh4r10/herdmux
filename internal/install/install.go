@@ -77,7 +77,9 @@ func Install(o Options) error {
 		}
 		if s.name == "codex daemon" && s.changes() {
 			fmt.Fprintf(o.Out, "codex's background server is off from now on (it ran the hooks from a stale tmux\n"+
-				"pane). If one is still running, the next codex launch asks to restart it: choose restart.\n")
+				"pane). One already running still serves new launches: stop it with\n"+
+				"  codex app-server daemon stop\n"+
+				"(this interrupts the codex sessions using it), then relaunch codex.\n")
 		}
 	}
 	return nil
