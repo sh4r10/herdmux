@@ -53,8 +53,9 @@ func TestHooks(t *testing.T) {
 			t.Errorf("dev/shims/codex doesn't pass the %s hook", ev)
 		}
 	}
-	if !strings.Contains(string(shim), `command="`+Command+`"`) || !strings.Contains(string(shim), "mcp_servers.herdmux") {
-		t.Errorf("dev/shims/codex doesn't pass %q and the dev MCP registration", Command)
+	if !strings.Contains(string(shim), `command="`+Command+`"`) || !strings.Contains(string(shim), "mcp_servers.herdmux") ||
+		!strings.Contains(string(shim), "features.daemon_auto_start=false") {
+		t.Errorf("dev/shims/codex doesn't pass %q, the dev MCP registration and daemon_auto_start=false", Command)
 	}
 	if Command != "herdmux hook codex" {
 		t.Errorf("Command = %q", Command)

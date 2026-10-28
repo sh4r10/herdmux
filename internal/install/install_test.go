@@ -47,6 +47,8 @@ const fakeCodex = `#!/bin/sh
 case "$1 $2" in
 "mcp add") /bin/mkdir -p "$HOME/.codex" && printf '[mcp_servers.herdmux]\ncommand = "herdmux"\nargs = ["mcp"]\n' >> "$HOME/.codex/config.toml" ;;
 "mcp remove") printf 'model = "gpt-5"\n' > "$HOME/.codex/config.toml" ;;
+"features disable") printf '[features]\ndaemon_auto_start = false\n' >> "$HOME/.codex/config.toml" ;;
+"features enable") /bin/sed -i '/^\[features\]$/d;/daemon_auto_start/d' "$HOME/.codex/config.toml" ;;
 esac
 `
 
@@ -394,8 +396,11 @@ func TestFreshInstall(t *testing.T) {
 	if c := canonical(stop); !strings.Contains(c, "notify-send done") || strings.Index(c, "notify-send") > strings.Index(c, codex.Command) {
 		t.Errorf("codex Stop = %s, want the user's hook then ours", c)
 	}
-	if strings.Contains(ch, claude.Command) || h.read(".codex/config.toml") != "model = \"gpt-5\"\n" {
-		t.Errorf("codex files:\n%s", ch)
+	if strings.Contains(ch, claude.Command) || h.read(".codex/config.toml") != "model = \"gpt-5\"\n[features]\ndaemon_auto_start = false\n" {
+		t.Errorf("codex files:\n%s\n%s", ch, h.read(".codex/config.toml"))
+	}
+	if !strings.Contains(out, "background server is off") {
+		t.Errorf("no codex daemon advice:\n%s", out)
 	}
 
 	// Plugin files with their headers.
@@ -552,7 +557,7 @@ func TestMCPRegistrations(t *testing.T) {
 	h.seed()
 	h.mustInstall(func(o *Options) { o.MCP = true })
 	log, _ := os.ReadFile(h.log)
-	if want := "claude [mcp] [add] [-s] [user] [herdmux] [--] [herdmux] [mcp]\ncodex [mcp] [add] [herdmux] [--] [herdmux] [mcp]\npi [mcp] [add] [herdmux] [--exposure] [direct] [--] [herdmux] [mcp]\n"; string(log) != want {
+	if want := "codex [features] [disable] [daemon_auto_start]\nclaude [mcp] [add] [-s] [user] [herdmux] [--] [herdmux] [mcp]\ncodex [mcp] [add] [herdmux] [--] [herdmux] [mcp]\npi [mcp] [add] [herdmux] [--exposure] [direct] [--] [herdmux] [mcp]\n"; string(log) != want {
 		t.Errorf("agent CLI calls:\n%s\nwant:\n%s", log, want)
 	}
 	oc := h.read(".config/opencode/opencode.json")
@@ -585,7 +590,7 @@ func TestMCPRegistrations(t *testing.T) {
 
 	h.uninstall(false)
 	log, _ = os.ReadFile(h.log)
-	if !strings.HasSuffix(string(log), "claude [mcp] [remove] [-s] [user] [herdmux]\ncodex [mcp] [remove] [herdmux]\npi [mcp] [remove] [herdmux]\n") {
+	if !strings.HasSuffix(string(log), "codex [features] [enable] [daemon_auto_start]\nclaude [mcp] [remove] [-s] [user] [herdmux]\ncodex [mcp] [remove] [herdmux]\npi [mcp] [remove] [herdmux]\n") {
 		t.Errorf("uninstall's agent CLI calls:\n%s", log)
 	}
 	if h.read(".config/opencode/opencode.json") != seedOpencode || h.read(".claude/settings.json") != seedSettings || h.read(".codex/hooks.json") != seedCodexHooks {
@@ -597,6 +602,9 @@ func TestMCPRegistrations(t *testing.T) {
 	log, _ = os.ReadFile(h.log)
 	if n := strings.Count(string(log), "[add]"); n != 6 {
 		t.Errorf("want 6 mcp add calls over three installs, got %d:\n%s", n, log)
+	}
+	if n := strings.Count(string(log), "[features] [disable]"); n != 2 {
+		t.Errorf("want 2 features disable calls (one per install after an uninstall), got %d:\n%s", n, log)
 	}
 }
 
@@ -610,7 +618,7 @@ func TestMidwayFailureReportsDoneSteps(t *testing.T) {
 		t.Fatalf("install succeeded:\n%s", out)
 	}
 	for _, want := range []string{"claude MCP: claude mcp add -s user herdmux -- herdmux mcp: exit status 1: boom",
-		"done before it: tmux.conf; claude hooks; codex hooks; opencode plugin; pi extension; opencode MCP", "run the command again"} {
+		"done before it: tmux.conf; claude hooks; codex hooks; codex daemon; opencode plugin; pi extension; opencode MCP", "run the command again"} {
 		if !strings.Contains(err.Error(), want) {
 			t.Errorf("error lacks %q:\n%v", want, err)
 		}

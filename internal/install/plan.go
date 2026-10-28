@@ -10,6 +10,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/BurntSushi/toml"
 	"github.com/sh4r10/herdmux/internal/integrations"
 	"github.com/sh4r10/herdmux/internal/integrations/claude"
 	"github.com/sh4r10/herdmux/internal/integrations/codex"
@@ -493,6 +494,49 @@ func codexMCPStep(p Paths, install bool) step {
 	return s
 }
 
+// codexDaemonOff reports whether config.toml sets features.daemon_auto_start
+// to false.
+func codexDaemonOff(b []byte) bool {
+	var c struct {
+		Features struct {
+			DaemonAutoStart *bool `toml:"daemon_auto_start"`
+		} `toml:"features"`
+	}
+	if _, err := toml.Decode(string(b), &c); err != nil {
+		return false
+	}
+	return c.Features.DaemonAutoStart != nil && !*c.Features.DaemonAutoStart
+}
+
+// codexDaemonStep turns codex's shared background server off (`codex
+// features disable daemon_auto_start`). That server outlives the codex that
+// started it, serves every later launch and runs the hooks itself: with its
+// own environment, so TMUX_PANE is the first launch's pane, and from its own
+// process, so the pid walk finds the server instead of the pane's codex.
+// Off, each codex runs its hooks in-process. Planned only once codex has
+// written its config.toml (so codex is installed); uninstall turns the
+// server back on when it is off.
+func codexDaemonStep(p Paths, install bool) step {
+	s := step{name: "codex daemon"}
+	b, err := os.ReadFile(p.CodexConfig)
+	off := codexDaemonOff(b)
+	switch {
+	case err != nil:
+		s.past = "codex isn't set up (no config.toml)"
+	case install && off:
+		s.past = "the background server is already off"
+	case install:
+		s.argv = []string{"codex", "features", "disable", "daemon_auto_start"}
+		s.action, s.past = "turn the background server off (features.daemon_auto_start = false)", "turned the background server off (features.daemon_auto_start = false)"
+	case off:
+		s.argv = []string{"codex", "features", "enable", "daemon_auto_start"}
+		s.action, s.past = "turn the background server back on", "turned the background server back on"
+	default:
+		s.past = "the background server is on"
+	}
+	return s
+}
+
 // piWanted reports whether pi's entry already matches what install adds.
 func piWanted(e *object) bool {
 	if e == nil {
@@ -615,6 +659,7 @@ func plan(p Paths, install, withMCP, purge bool) (steps []step, warn, problems [
 	add(describeJSON(s, install, what), nil, err)
 	s, err = planJSON("codex hooks", p.CodexHooks, p, install, codexEdit(install))
 	add(describeJSON(s, install, "the herdmux hooks"), nil, err)
+	steps = append(steps, codexDaemonStep(p, install))
 	add(planPlugin("opencode plugin", p.OpencodePlugin, p, integrations.OpencodePlugin, install))
 	add(planPlugin("pi extension", p.PiExtension, p, integrations.PiExtension, install))
 	if install && !withMCP {

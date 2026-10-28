@@ -75,6 +75,10 @@ func Install(o Options) error {
 		if s.name == "codex hooks" && s.new != nil {
 			fmt.Fprintf(o.Out, "codex runs new hooks only once you trust them: open codex and run /hooks.\n")
 		}
+		if s.name == "codex daemon" && s.changes() {
+			fmt.Fprintf(o.Out, "codex's background server is off from now on (it ran the hooks from a stale tmux\n"+
+				"pane). If one is still running, the next codex launch asks to restart it: choose restart.\n")
+		}
 	}
 	return nil
 }

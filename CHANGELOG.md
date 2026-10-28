@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.5.1 — 2026-10-28
+
+- Fixed: codex state never reached the status bar. codex's shared background server (`daemon_auto_start`, on by default) runs the hooks with the environment of whichever launch started it, so herdmux reported to a stale pane. `herdmux install` now runs `codex features disable daemon_auto_start` (uninstall re-enables it), the dev shim passes the same override, and a hook run by the server logs what to do instead of "pane not found".
+
 ## 1.4.0 — 2026-10-24
 
 - New: the status bar's right side shows Attention in other sessions: the most urgent agent's state icon and its session name, plus `+N` for further waiting agents elsewhere. It updates on every report, Visit and recheck.

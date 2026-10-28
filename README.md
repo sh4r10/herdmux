@@ -75,7 +75,7 @@ herdmux help [--all | command]
 | Agent | Integration | Installed to |
 |---|---|---|
 | [claude](https://docs.anthropic.com/en/docs/claude-code) | hooks running `herdmux hook claude` | `~/.claude/settings.json` |
-| [codex](https://developers.openai.com/codex) | hooks running `herdmux hook codex` (trust them once with `/hooks` in codex) | `~/.codex/hooks.json` |
+| [codex](https://developers.openai.com/codex) | hooks running `herdmux hook codex` (trust them once with `/hooks` in codex); its background server is turned off, since it runs hooks from a stale pane | `~/.codex/hooks.json`, `~/.codex/config.toml` |
 | [opencode](https://opencode.ai) | plugin | `~/.config/opencode/plugins/herdmux-agent-state.js` |
 | [pi](https://github.com/badlogic/pi-mono) | extension | `~/.pi/agent/extensions/herdmux-agent-state.ts` |
 

@@ -125,6 +125,19 @@ func TestHookCodex(t *testing.T) {
 	if log, _ := os.ReadFile(s.LogPath()); !strings.Contains(string(log), "no codex process above pid") {
 		t.Errorf("log lacks the missing-codex line:\n%s", log)
 	}
+
+	// A hook run by codex's background server (argv has --managed-daemon)
+	// reports nothing and logs what to do.
+	dpane := s.Tmux("new-window", "-d", "-P", "-F", "#{pane_id}", `exec bash -c 'exec -a codex bash -c "sleep 100000; :" app-server --managed-daemon'`)
+	s.Eventually(2*time.Second, "fake daemon", func() bool { return s.Display(dpane, "#{pane_current_command}") == "codex" })
+	dpid, _ := strconv.Atoi(s.Display(dpane, "#{pane_pid}"))
+	hookAgentInProcess(t, s, "codex", dpane, dpid, `{"hook_event_name":"UserPromptSubmit","prompt":"x"}`)
+	if got := paneState(s, dpane); got != "unknown/" {
+		t.Errorf("daemon hook: state %s, want unknown/", got)
+	}
+	if log, _ := os.ReadFile(s.LogPath()); !strings.Contains(string(log), "codex features disable daemon_auto_start") {
+		t.Errorf("log lacks the background-server line:\n%s", log)
+	}
 }
 
 func readFixture(t *testing.T, name string) []string {
